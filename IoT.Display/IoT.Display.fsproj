@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard1.6;net45</TargetFrameworks>
+    <Authors>Serhii Zabashta</Authors>
+    <Description>Layout engine for monochrome displays. Implements layout elements like dock or stack panels to be used for rendering to displays in IoT applications.</Description>
+    <Copyright>2019 Serhii Zabashta</Copyright>
+    <PackageProjectUrl></PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/serhiiz/IoT.Display/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/serhiiz/IoT.Display</RepositoryUrl>
+    <RepositoryType>Dependency</RepositoryType>
+    <PackageTags>display IoT SSD1306 F# FSharp dock OLED</PackageTags>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Types.fs" />
+    <Compile Include="Graphics.fs" />
+    <Compile Include="Primitives.fs" />
+    <Compile Include="FontClass.fs" />    
+    <Compile Include="Layout.fs" />    
+    <Compile Include="Devices\Types.fs" />    
+    <Compile Include="Devices\SSD1306.fs" /> 
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.6.2" />
+  </ItemGroup>
+
+</Project>

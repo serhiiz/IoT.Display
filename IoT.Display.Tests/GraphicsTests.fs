@@ -1,0 +1,77 @@
+namespace IoT.Display.Tests
+
+open NUnit.Framework
+open IoT.Display
+open IoT.Display.Graphics
+open Swensen.Unquote
+
+module GraphicsTests = 
+
+    //┌────────────────┐
+    //│▀▄             ▀│
+    //│  ▀▄            │
+    //│    ▀▄          │
+    //│      ▀▄        │
+    //│        ▀▄      │
+    //│          ▀▄    │
+    //│            ▀▄  │
+    //│              ▀▄│
+    //└────────────────┘    
+    let getAssymetricDiagonalGraphics mode endian = 
+        let g = Graphics(mode, endian, {Size.Width = 16; Height = 16})
+        for i = 0 to 15 do
+            g.SetPixel i i
+        g.SetPixel 15 0
+        g
+
+    [<Test>]
+    let ``Diagonal graphics test ColumnMajor+Little`` () =
+        let g = getAssymetricDiagonalGraphics ColumnMajor Little
+
+        g.GetBuffer() =! [|0x01uy; 0x00uy; 0x02uy; 0x00uy; 0x04uy; 0x00uy; 0x08uy; 0x00uy; 
+                           0x10uy; 0x00uy; 0x20uy; 0x00uy; 0x40uy; 0x00uy; 0x80uy; 0x00uy;
+                           0x00uy; 0x01uy; 0x00uy; 0x02uy; 0x00uy; 0x04uy; 0x00uy; 0x08uy; 
+                           0x00uy; 0x10uy; 0x00uy; 0x20uy; 0x00uy; 0x40uy; 0x01uy; 0x80uy|]
+
+    [<Test>]
+    let ``Diagonal graphics test ColumnMajor+Big`` () =
+        let g = getAssymetricDiagonalGraphics ColumnMajor Big
+
+        g.GetBuffer() =! [|0x80uy; 0x00uy; 0x40uy; 0x00uy; 0x20uy; 0x00uy; 0x10uy; 0x00uy; 
+                           0x08uy; 0x00uy; 0x04uy; 0x00uy; 0x02uy; 0x00uy; 0x01uy; 0x00uy;
+                           0x00uy; 0x80uy; 0x00uy; 0x40uy; 0x00uy; 0x20uy; 0x00uy; 0x10uy; 
+                           0x00uy; 0x08uy; 0x00uy; 0x04uy; 0x00uy; 0x02uy; 0x80uy; 0x01uy|]
+
+    [<Test>]
+    let ``Diagonal graphics test RowMajor+Little`` () =
+        let g = getAssymetricDiagonalGraphics RowMajor Little
+
+        g.GetBuffer() =! [|0x01uy; 0x80uy; 0x02uy; 0x00uy; 0x04uy; 0x00uy; 0x08uy; 0x00uy; 
+                           0x10uy; 0x00uy; 0x20uy; 0x00uy; 0x40uy; 0x00uy; 0x80uy; 0x00uy;
+                           0x00uy; 0x01uy; 0x00uy; 0x02uy; 0x00uy; 0x04uy; 0x00uy; 0x08uy; 
+                           0x00uy; 0x10uy; 0x00uy; 0x20uy; 0x00uy; 0x40uy; 0x00uy; 0x80uy|]
+
+    [<Test>]
+    let ``Diagonal graphics test RowMajor+Big`` () =
+        let g = getAssymetricDiagonalGraphics RowMajor Big
+
+        g.GetBuffer() =! [|0x80uy; 0x01uy; 0x40uy; 0x00uy; 0x20uy; 0x00uy; 0x10uy; 0x00uy; 
+                           0x08uy; 0x00uy; 0x04uy; 0x00uy; 0x02uy; 0x00uy; 0x01uy; 0x00uy;
+                           0x00uy; 0x80uy; 0x00uy; 0x40uy; 0x00uy; 0x20uy; 0x00uy; 0x10uy; 
+                           0x00uy; 0x08uy; 0x00uy; 0x04uy; 0x00uy; 0x02uy; 0x00uy; 0x01uy|]
+    
+    [<Test>]
+    [<TestCase(3, 3, 3)>]
+    [<TestCase(3, 7, 3)>]
+    [<TestCase(3, 9, 6)>]
+    let ``Verify graphics buffer length Column Major`` width height expectedLength =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = width; Height = height})
+        g.GetBuffer().Length =! expectedLength
+    
+    [<Test>]
+    [<TestCase(3, 3, 3)>]
+    [<TestCase(7, 3, 3)>]
+    [<TestCase(9, 3, 6)>]
+    let ``Verify graphics buffer length Row Major`` width height expectedLength =
+        let g = Graphics(RowMajor, Little, {Size.Width = width; Height = height})
+        g.GetBuffer().Length =! expectedLength

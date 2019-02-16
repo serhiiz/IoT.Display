@@ -1,0 +1,80 @@
+namespace IoT.Display
+
+module Graphics =
+
+    [<Literal>]
+    let BitsInByte = 8   
+
+    let private pxToBytes px = px / BitsInByte + (if px % BitsInByte <> 0 then 1 else 0)
+    let private getBufferLength widthBytes heightBytes size = function
+        | ColumnMajor -> heightBytes * size.Width
+        | RowMajor -> widthBytes * size.Height
+
+    type Graphics private(mode, endian, size, buffer, widthBytes, heighBytes) =
+        let getByteIndex x y = function
+            | ColumnMajor -> x * heighBytes + y / BitsInByte
+            | RowMajor -> y * widthBytes + x / BitsInByte
+
+        let getBitIndex x y mode endian = 
+            match (mode, endian) with
+            | (ColumnMajor, Little) -> y % BitsInByte
+            | (RowMajor, Little) -> x % BitsInByte
+            | (ColumnMajor, Big) -> BitsInByte - y % BitsInByte - 1
+            | (RowMajor, Big) -> BitsInByte - x % BitsInByte - 1
+        
+        new(mode, endian, size) = 
+            let widthBytes = size.Width |> pxToBytes
+            let heightBytes = size.Height |> pxToBytes
+            let bufferLength = getBufferLength widthBytes heightBytes size mode
+            let buffer = Array.zeroCreate (bufferLength)
+            Graphics(mode, endian, size, buffer, widthBytes, heightBytes)
+        
+        new(mode, endian, size, buffer:byte[]) = 
+            let widthBytes = size.Width |> pxToBytes
+            let heightBytes = size.Height |> pxToBytes
+            let expectedLength = getBufferLength widthBytes heightBytes size mode
+            if (buffer.Length <> expectedLength)
+                then invalidArg "buffer" (sprintf "The length of the array is invalid. Expected %i, but got %i." expectedLength buffer.Length)
+            Graphics(mode, endian, size, buffer, widthBytes, heightBytes)
+
+        member __.SetPixel x y =
+            let index = getByteIndex x y mode  
+            let pos = getBitIndex x y mode endian
+            let value = 1uy <<< pos
+            buffer.[index] <- buffer.[index] ||| value
+
+        member __.GetPixel x y = 
+            let index = getByteIndex x y mode  
+            let pos = getBitIndex x y mode endian
+            let value = 1uy <<< pos
+            (buffer.[index] &&& value) >>> pos
+
+        member __.GetBuffer() = buffer
+        member __.Size with get () = size
+        member __.AddressingMode with get() = mode
+        member __.Endian with get () = endian
+
+        override __.ToString() =
+            let lines = 
+                List.init (size.Height / 2) id 
+                |> List.map (fun j -> 
+                    let chars = 
+                        List.init size.Width id 
+                        |> List.map (fun i -> 
+                            let t = __.GetPixel i (j*2)
+                            let b = __.GetPixel i ((j*2) + 1)
+                            match (t, b) with 
+                            | 1uy, 1uy -> '█'
+                            | 0uy, 1uy -> '▄'
+                            | 1uy, 0uy -> '▀'
+                            | _ -> ' ')
+                    System.String(('│' :: chars @ ['│']) |> List.toArray))
+            let header = new System.String(('┌' :: List.replicate size.Width '─' @ ['┐']) |> List.toArray)
+            let footer = new System.String(('└' :: List.replicate size.Width '─' @ ['┘']) |> List.toArray)
+            System.String.Join(System.Environment.NewLine, header :: lines @ [footer])
+
+    let createFromDisplayCustomSize (display:IDisplay) size = 
+        Graphics(display.AddressingMode, display.Endian, size)
+
+    let createFromDisplay (display:IDisplay) = 
+        createFromDisplayCustomSize display display.Size
