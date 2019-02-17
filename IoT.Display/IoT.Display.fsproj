@@ -4,14 +4,18 @@
     <TargetFrameworks>netstandard2.0;netstandard1.6;net45</TargetFrameworks>
     <Authors>Serhii Zabashta</Authors>
     <Description>Layout engine for monochrome displays. Implements layout elements like dock or stack panels to be used for rendering to displays in IoT applications.</Description>
-    <Copyright>2019 Serhii Zabashta</Copyright>
+    <Copyright>Serhii Zabashta (c) 2019</Copyright>
     <PackageProjectUrl></PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/serhiiz/IoT.Display/master/LICENSE</PackageLicenseUrl>
+    <PackageLicense>MIT</PackageLicense>
     <RepositoryUrl>https://github.com/serhiiz/IoT.Display</RepositoryUrl>
     <RepositoryType>Dependency</RepositoryType>
     <PackageTags>display IoT SSD1306 F# FSharp dock OLED</PackageTags>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
+    <Version>1.0.0-alpha1</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <PackageReleaseNotes>Initial realease. Supports dock panel, stack panel, text, and image with SSD1306.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +23,7 @@
     <Compile Include="Graphics.fs" />
     <Compile Include="Primitives.fs" />
     <Compile Include="FontClass.fs" />    
-    <Compile Include="Layout.fs" />    
+    <Compile Include="Layout.fs" /> 
     <Compile Include="Devices\Types.fs" />    
     <Compile Include="Devices\SSD1306.fs" /> 
   </ItemGroup>
