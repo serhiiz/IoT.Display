@@ -40,7 +40,7 @@ stack StackPanelOrientation.Horizontal [HorizontalAlignment HorizontalAlignment.
 ]
 |> renderToGraphics g
 ```
-![Stack example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/Docs/Images/stack.bmp)
+![Stack example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/stack.bmp)
 
 ### Dock panel
 ```F#
@@ -61,7 +61,7 @@ dock [][
 ]
 |> renderToGraphics g
 ```
-![Dock example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/Docs/Images/dock.bmp)
+![Dock example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/dock.bmp)
 
 ### Visuals examples
 ```F#
@@ -80,7 +80,7 @@ List.init 21 (fun _ -> r.Next(30) + 2)
     ]
 |> List.iter (renderVisualToGraphics g)
 ```
-![Visuals example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/Docs/Images/visuals.bmp)
+![Visuals example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/visuals.bmp)
 
 ## Possible enhancements
 - Add Border
