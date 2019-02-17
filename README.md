@@ -87,6 +87,7 @@ List.init 21 (fun _ -> r.Next(30) + 2)
 - Add Text Direction
 - Add Font Size
 - Add Clip to Graphics
+- Add text wrapping
 
 ## License
 IoT.Display is licensed under the [MIT license](LICENSE).
