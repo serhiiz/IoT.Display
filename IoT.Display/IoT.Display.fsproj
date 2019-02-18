@@ -6,7 +6,7 @@
     <Description>Layout engine for monochrome displays. Implements layout elements like dock or stack panels to be used for rendering to displays in IoT applications.</Description>
     <Copyright>Serhii Zabashta (c) 2019</Copyright>
     <PackageProjectUrl></PackageProjectUrl>
-    <PackageLicense>MIT</PackageLicense>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/serhiiz/IoT.Display</RepositoryUrl>
     <RepositoryType>Dependency</RepositoryType>
     <PackageTags>display IoT SSD1306 F# FSharp dock OLED</PackageTags>
