@@ -12,10 +12,12 @@
     <PackageTags>display IoT SSD1306 F# FSharp dock OLED</PackageTags>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <Version>1.0.0-alpha1</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <PackageReleaseNotes>Initial realease. Supports dock panel, stack panel, text, and image with SSD1306.</PackageReleaseNotes>
+    <Version>1.0.0-alpha2</Version>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
+    <FileVersion>1.0.0.2</FileVersion>
+    <PackageReleaseNotes>Added Polyline Visual;
+Handled out of bounds rendering;
+Fixed vertial line rendering.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
