@@ -17,6 +17,7 @@
     <Compile Include="Helpers.fs" />
     <Compile Include="GraphicsTests.fs" />
     <Compile Include="MeasureLayoutTests.fs" />
+    <Compile Include="RenderPrimitivesTests.fs" />
     <Compile Include="RenderLayoutTests.fs" />
   </ItemGroup>
 
