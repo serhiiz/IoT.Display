@@ -1,5 +1,5 @@
 # Layout library for monochrome OLED dispalys in IoT applications written in F#
-The library is supposed to be used in applications where UI is rendered every time there's a change. The layout is defined declaratively using elements like dock or stack panels similarly to WPF. Once defined it can be rendered into a buffer and then sent to the display driver. This library does not include platform specific communication code for SSD1306.
+The library is supposed to be used in applications where UI is rendered every time there's a change. The layout is defined declaratively using elements like dock or stack panels similarly to WPF. Once defined it can be rendered into a buffer and then sent to the display driver. This library does not include platform specific communication code for SSD1306. Check out [IoT.Display.UWP](https://github.com/serhiiz/IoT.Display.UWP) for UWP adapter and demo app.
 
 [![NuGet version (IoT.Display)](https://img.shields.io/nuget/v/IoT.Display.svg?style=flat-square)](https://www.nuget.org/packages/IoT.Display/)
 
@@ -87,6 +87,7 @@ List.init 21 (fun _ -> r.Next(30) + 2)
 - Add Text Direction
 - Add Font Size
 - Add Clip to Graphics
+- Add text wrapping
 
 ## License
 IoT.Display is licensed under the [MIT license](LICENSE).
