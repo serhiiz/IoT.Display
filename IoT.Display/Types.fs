@@ -37,17 +37,18 @@ module Thickness =
     let emptyThickness = thickness 0 0 0 0
     let toSize t =
         {Width =t.Left + t.Right; Height = t.Top + t.Bottom}
-    
-    let shrink r thickness =
-        {Point = r.Point + {X = thickness.Left; Y = thickness.Top}; Size = r.Size - (toSize thickness)}
-
-    let expand r thickness =
-        {Point = r.Point - {X = thickness.Left; Y = thickness.Top}; Size = r.Size + (toSize thickness)}
 
 [<AutoOpen>]
 module Rect =
     let fromSize s = 
         {Point = {X = 0; Y = 0;}; Size = s}
+
+    let isPointWithin r p =
+        p.X >= r.Point.X && p.Y >= r.Point.Y && p.X < (r.Point.X + r.Size.Width) && p.Y < (r.Point.Y + r.Size.Height)
+    
+    let shrink r thickness =
+        let newSize = r.Size - (toSize thickness)
+        {Point = r.Point + {X = thickness.Left; Y = thickness.Top}; Size = { Width = Math.Max(newSize.Width, 0); Height = Math.Max(newSize.Height, 0) }}
 
 [<AutoOpen>]
 module Size =

@@ -549,3 +549,65 @@ module RenderLayoutTests =
 │  ▀ ▀▀▀▀▀  ▀▀▀ │
 │               │
 └───────────────┘"""
+
+    [<Test>]
+    let ``Render "123" string out of bounds test`` () =
+        let g = createGraphics()
+
+        dock [] [
+            text [] "123"
+        ]
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│  ▄  ▄▄▄│
+│▀▀█ █   │
+│  █    ▄│
+│  █  ▄▀ │
+└────────┘"""
+
+    [<Test>]
+    let ``Dock panel image out of bounds`` () =
+        let g = createGraphics()
+
+        let margin = [Margin (thickness 1 0 0 0)]
+        dock [] [
+            image margin point2x2
+            image margin point2x2
+            image margin point2x2
+            image margin point2x2
+        ]
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│ ██ ██ █│
+│        │
+│        │
+│        │
+└────────┘"""
+
+    [<Test>]
+    let ``Stack panel image out of bounds`` () =
+        let g = createGraphics()
+
+        let margin = [Margin (thickness 0 1 0 0 )]
+        stack Vertical [] [
+            image margin point2x2
+            image margin point2x2
+            image margin point2x2
+            image margin point2x2
+        ]
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│▄▄      │
+│▀▀      │
+│██      │
+│▄▄      │
+└────────┘"""

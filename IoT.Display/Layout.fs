@@ -72,17 +72,17 @@ module Layout =
     let inline image (attributes:Attribute list) buffer =
         Image (attributes |> createProps, buffer)
 
-    let measureChar c = 
+    let private measureChar c = 
         let data = FontClass.getCharData c 
         let len = data |> Array.length 
         len / 2
 
-    let measureString (str:string) = 
+    let private measureString (str:string) = 
         str
         |> Seq.sumBy measureChar
         |> (fun p -> {Width = p + Math.Max(str.Length - 1, 0); Height = FontClass.fontHeight})
 
-    let getProps = function
+    let private getProps = function
         | Text (props, _) -> props
         | StackPanel (_, props, _) -> props
         | Image (props, _) -> props
@@ -136,21 +136,26 @@ module Layout =
         {Width = props.Width |> Option.defaultValue coreSize.Width; Height = props.Height |> Option.defaultValue coreSize.Height} 
         |> (+) (props.Margin |> Thickness.toSize) 
         |> applyBounds maxSize
+    
+    let private renderGraphics writePixel rect origin (graphics:Graphics) =
+        let size = Size.min rect.Size graphics.Size
+        if isPointWithin rect origin then
+            for iy = 0 to size.Height - 1 do
+                for ix = 0 to size.Width - 1 do
+                    if graphics.GetPixel ix iy = 1uy then
+                        let p = {X = ix + origin.X; Y = iy + origin.Y}
+                        if (isPointWithin rect p) then
+                            writePixel p.X p.Y
 
-    let renderString writePixel (rect:Rect) str =
-        let acc x c =
+    let private renderString writePixel (rect:Rect) str =
+        let acc origin c =
             let g = FontClass.getCharGraphics c
-            
-            if ((x + g.Size.Width) <= rect.Point.X + rect.Size.Width) then 
-                for iy = 0 to g.Size.Height - 1 do
-                for ix = 0 to g.Size.Width - 1 do                
-                    if g.GetPixel ix iy = 1uy then
-                        writePixel (ix + x) (iy + rect.Point.Y)
-            x + g.Size.Width + 1
+            renderGraphics writePixel rect origin g
+            {origin with X = origin.X + g.Size.Width + 1}
         
-        str |> Seq.fold acc rect.Point.X |> ignore
+        str |> Seq.fold acc rect.Point |> ignore
 
-    let rec render writePixel (area:Rect) element =
+    let rec private render writePixel (area:Rect) element =
         let getRenderRect (r:Rect) (desiredSize:Size) hAlignment vAlignment =
             let (x,w) = 
                 match hAlignment with
@@ -191,11 +196,7 @@ module Layout =
                     remaining
                 childs |> List.fold folder paddingArea |> ignore
             | Image (_, graphics) -> 
-                let size = Size.min graphics.Size rect.Size
-                for i = 0 to size.Width - 1 do
-                    for j = 0 to size.Height - 1 do
-                        if graphics.GetPixel i j = 1uy then writePixel (i + rect.Point.X) (j + rect.Point.Y)
-
+                renderGraphics writePixel rect rect.Point graphics
             | DockPanel (_, childs) ->
                 let paddingArea = shrink rect props.Padding
                 let folder remainingRect c = 

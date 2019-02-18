@@ -43,6 +43,22 @@ module RenderPrimitivesTests =
 │        │
 │       ▄│
 └────────┘"""
+
+    [<Test>]
+    let ``Dot out of bounds test`` () =
+        let g = createGraphics()
+
+        Dot {X = 8; Y = 8}
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│        │
+│        │
+│        │
+│        │
+└────────┘"""
     
     [<Test>]
     [<TestCase(0,1,0,6)>]
@@ -63,6 +79,24 @@ module RenderPrimitivesTests =
 └────────┘"""
 
     [<Test>]
+    [<TestCase(0,-1,0,16)>]
+    [<TestCase(0,16,0,-1)>]
+    let ``Vertical line crossing boudary test`` x1 y1 x2 y2 =
+        let g = createGraphics()
+
+        Line ({X = x1; Y = y1}, {X = x2; Y = y2})
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│█       │
+│█       │
+│█       │
+│█       │
+└────────┘"""
+
+    [<Test>]
     [<TestCase(1,0,6,0)>]
     [<TestCase(6,0,1,0)>]
     let ``Horizontal line test`` x1 y1 x2 y2 =
@@ -75,6 +109,24 @@ module RenderPrimitivesTests =
         assertRender actual """
 ┌────────┐
 │ ▀▀▀▀▀▀ │
+│        │
+│        │
+│        │
+└────────┘"""
+
+    [<Test>]
+    [<TestCase(-1,0,16,0)>]
+    [<TestCase(16,0,-1,0)>]
+    let ``Horizontal line crossing boudary test`` x1 y1 x2 y2 =
+        let g = createGraphics()
+
+        Line ({X = x1; Y = y1}, {X = x2; Y = y2})
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│▀▀▀▀▀▀▀▀│
 │        │
 │        │
 │        │
@@ -119,6 +171,8 @@ module RenderPrimitivesTests =
     [<Test>]
     [<TestCase(1,6,6,1)>]
     [<TestCase(6,1,1,6)>]
+    [<TestCase(1,1,6,6)>]
+    [<TestCase(6,6,1,1)>]
     let ``Rectangle test`` x1 y1 x2 y2 =
         let g = createGraphics()
 
@@ -132,6 +186,23 @@ module RenderPrimitivesTests =
 │ ██████ │
 │ ██████ │
 │ ▀▀▀▀▀▀ │
+└────────┘"""
+
+    [<Test>]
+    [<TestCase(2,-6,5,16)>]
+    let ``Rectangle outside of boudaries test`` x1 y1 x2 y2 =
+        let g = createGraphics()
+
+        Rectangle ({X = x1; Y = y1}, {X = x2; Y = y2})
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│  ████  │
+│  ████  │
+│  ████  │
+│  ████  │
 └────────┘"""
     
     [<Test>]
