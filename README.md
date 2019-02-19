@@ -88,6 +88,8 @@ List.init 21 (fun _ -> r.Next(30) + 2)
 - Add Font Size
 - Add Clip to Graphics
 - Add text wrapping
+- Support on mono/.net core
+- Support for SH1106
 
 ## License
 IoT.Display is licensed under the [MIT license](LICENSE).
