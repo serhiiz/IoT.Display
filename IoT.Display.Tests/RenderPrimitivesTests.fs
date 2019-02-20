@@ -250,3 +250,71 @@ module RenderPrimitivesTests =
 │█      █│
 │█▄▄▄▄▄▄█│
 └────────┘"""
+
+    [<Test>]
+    let ``Quadratic Bezier test`` () =
+        let g = createGraphics()
+
+        QuadraticBezier ({X = 0; Y = 0}, {X = 0; Y = 7}, {X = 7; Y = 7})
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│█       │
+│▀▄      │
+│ █▄     │
+│   ▀▀▀▄▄│
+└────────┘"""
+
+    [<Test>]
+    let ``Quadratic Bezier 16x16 test`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 16; Height = 16})
+
+        QuadraticBezier ({X = 0; Y = 0}, {X = 0; Y = 15}, {X = 15; Y = 15})
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────────────┐
+│█               │
+│█               │
+│█               │
+│▀▄              │
+│  █             │
+│   ▀▄           │
+│     ▀▀▄        │
+│        ▀▀▀▀▀▄▄▄│
+└────────────────┘"""
+
+    [<Test>]
+    let ``Vertical line light slope test`` () =
+        let g = createGraphics()
+
+        Line ({X = 0; Y = 0}, {X = 1; Y = 7})
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│█       │
+│█       │
+│ █      │
+│ █      │
+└────────┘"""
+
+    [<Test>]
+    let ``Horizontal line light slope test`` () =
+        let g = createGraphics()
+
+        Line ({X = 0; Y = 0}, {X = 7; Y = 1})
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│▀▀▀▀▄▄▄▄│
+│        │
+│        │
+│        │
+└────────┘"""
