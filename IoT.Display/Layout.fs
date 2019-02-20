@@ -4,12 +4,16 @@ module Layout =
 
     open System
     open IoT.Display.Graphics
+    open Primitives
 
     type IBaseAttribute = interface end
     type IStackPanelAttribute =
         inherit IBaseAttribute
+    type IBorderAttribute =
+        inherit IBaseAttribute
     type IAttribute = 
         inherit IStackPanelAttribute
+        inherit IBorderAttribute
 
     type HorizontalAlignment = 
         | Left
@@ -48,9 +52,14 @@ module Layout =
         | Orientation of StackPanelOrientation
         interface IStackPanelAttribute
 
+    type BorderAttribute = 
+        | Thickness of Thickness
+        interface IBorderAttribute
+
     type LayoutElement =
         | StackPanel of (IStackPanelAttribute list * LayoutElement list)
         | DockPanel of (IAttribute list * LayoutElement list)
+        | Border of (IBorderAttribute list * LayoutElement)
         | Text of (IAttribute list * string)
         | Image of (IAttribute list * Graphics)
 
@@ -61,6 +70,9 @@ module Layout =
 
     let inline dock (attributes:IAttribute list) children =
         DockPanel (attributes, children)
+
+    let inline border (attributes:IBorderAttribute list) child =
+        Border (attributes, child)
 
     let inline text (attributes:IAttribute list) str =
         Text (attributes, str)
@@ -106,6 +118,7 @@ module Layout =
         | StackPanel (props, _) -> props |> List.choose tryCastAttribute<IAttribute> |> createProps
         | Image (props, _) -> props |> createProps
         | DockPanel (props, _) -> props |> createProps
+        | Border (props, _) -> props |> List.choose tryCastAttribute<IAttribute> |> createProps
 
     let private getStackPanelOrientation attrs = 
         let acc orientation (attribute:IStackPanelAttribute) = 
@@ -118,6 +131,18 @@ module Layout =
         attrs 
         |> List.fold acc None
         |> Option.defaultValue StackPanelOrientation.Vertical
+
+    let private getBorderThickness attrs = 
+        let acc thickness (attribute:IBorderAttribute) = 
+            match attribute with 
+            | :? BorderAttribute as spa ->
+                match spa with 
+                | Thickness t -> Some t
+            | _ -> thickness
+
+        attrs 
+        |> List.fold acc None
+        |> Option.defaultValue Thickness.emptyThickness
 
     let rec measure (maxSize:Size) (element:LayoutElement) : Size = 
         let measureCore = function
@@ -160,7 +185,10 @@ module Layout =
                         (size', cons')
 
                 childs |> List.fold measureChild (Size.empty, maxSize) |> fst
-            
+            | Border (attrs, child) ->
+                let thickness = getBorderThickness attrs
+                measure maxSize child |> (+) (thickness |> Thickness.toSize)
+
         let props = element |> getGenericProperties
         let coreSize = lazy (element |> measureCore |> (+) (props.Padding |> Thickness.toSize))
 
@@ -168,7 +196,7 @@ module Layout =
         |> (+) (props.Margin |> Thickness.toSize) 
         |> applyBounds maxSize
     
-    let private renderGraphics writePixel rect origin (graphics:Graphics) =
+    let private renderGraphics (targetGraphics:Graphics) rect origin (graphics:Graphics) =
         let size = Size.min rect.Size graphics.Size
         if isPointWithin rect origin then
             for iy = 0 to size.Height - 1 do
@@ -176,17 +204,17 @@ module Layout =
                     if graphics.GetPixel ix iy = 1uy then
                         let p = {X = ix + origin.X; Y = iy + origin.Y}
                         if (isPointWithin rect p) then
-                            writePixel p.X p.Y
+                            targetGraphics.SetPixel p.X p.Y
 
-    let private renderString writePixel (rect:Rect) str =
+    let private renderString graphics (rect:Rect) str =
         let acc origin c =
             let g = FontClass.getCharGraphics c
-            renderGraphics writePixel rect origin g
+            renderGraphics graphics rect origin g
             {origin with X = origin.X + g.Size.Width + 1}
         
         str |> Seq.fold acc rect.Point |> ignore
 
-    let rec private render writePixel (area:Rect) element =
+    let rec private render (graphics:Graphics) (area:Rect) element =
         let getRenderRect (r:Rect) (desiredSize:Size) hAlignment vAlignment =
             let (x,w) = 
                 match hAlignment with
@@ -210,7 +238,7 @@ module Layout =
         let rect = getRenderRect marginArea desiredSize props.HorizontalAlignment props.VerticalAlignment
         
         match element with
-            | Text (_, s) -> s |> renderString writePixel rect
+            | Text (_, s) -> s |> renderString graphics rect
             | StackPanel (attrs, childs) -> 
                 let paddingArea = shrink rect props.Padding
                 let orientation = getStackPanelOrientation attrs
@@ -224,11 +252,11 @@ module Layout =
                         | Vertical -> 
                             (shrink remainingRect (thickness 0 0 0 (remainingRect.Size.Height - m.Height)),
                                 shrink remainingRect (thickness 0 m.Height 0 0))
-                    render writePixel renderRect c
+                    render graphics renderRect c
                     remaining
                 childs |> List.fold folder paddingArea |> ignore
-            | Image (_, graphics) -> 
-                renderGraphics writePixel rect rect.Point graphics
+            | Image (_, g) -> 
+                renderGraphics graphics rect rect.Point g
             | DockPanel (_, childs) ->
                 let paddingArea = shrink rect props.Padding
                 let folder remainingRect c = 
@@ -251,12 +279,23 @@ module Layout =
                         | Fill ->
                             (remainingRect, {remainingRect with Size = Size.empty})
 
-                    render writePixel renderRect c
+                    render graphics renderRect c
                     remaining
                 childs |> List.fold folder paddingArea |> ignore
+            | Border (attrs, child) -> 
+                let bt = getBorderThickness attrs
+                [ 
+                    Rectangle (shrink rect (thickness 0 0 (rect.Size.Width - bt.Left) 0)) 
+                    Rectangle (shrink rect (thickness 0 0 0 (rect.Size.Height - bt.Top))) 
+                    Rectangle (shrink rect (thickness (rect.Size.Width - bt.Right) 0 0 0))
+                    Rectangle (shrink rect (thickness 0 (rect.Size.Height - bt.Bottom) 0 0))
+                ]
+                |> List.iter (renderVisualToGraphics graphics)
+                let childRect = shrink rect (bt + props.Padding)
+                render graphics childRect child
 
     let renderToGraphics (graphics:Graphics) element =
-        render graphics.SetPixel (graphics.Size |> Rect.fromSize) element
+        render graphics (graphics.Size |> Rect.fromSize) element
 
     let renderToDisplay (display:IDisplay) element =
         let graphics = Graphics.createFromDisplay display

@@ -3,10 +3,12 @@ namespace IoT.Display.Tests
 open NUnit.Framework
 open Swensen.Unquote
 open IoT.Display
+open IoT.Display.Graphics
 open IoT.Display.Layout
 
 module MeasureLayoutTests = 
     let maxSize = {Size.Width=128; Height=64}
+    let onePixelGraphics = Graphics(ColumnMajor, Little, {Width = 1; Height = 1})
 
     [<Test>]
     let ``Vertical empty stack test`` () =
@@ -75,3 +77,48 @@ module MeasureLayoutTests =
             text [] "2"
         ]
         measure maxSize layout =! { Width = 5; Height = FontClass.fontHeight * 2 }
+
+    [<Test>]
+    let ``Measure image test`` () =
+        let layout = image [] onePixelGraphics
+        measure maxSize layout =! { Width = 1; Height = 1 }
+
+    [<Test>]
+    let ``Measure image with margin test`` () =
+        let layout = image [Margin (thickness 1 2 3 4)] onePixelGraphics
+        measure maxSize layout =! { Width = 5; Height = 7 }
+
+    [<Test>]
+    let ``Measure image with width/heigh set test`` () =
+        let layout = image [Width 10; Height 5] onePixelGraphics
+        measure maxSize layout =! { Width = 10; Height = 5 }            
+
+    [<Test>]
+    let ``Measure border test`` () =
+        let layout = border [] (image [] onePixelGraphics)
+        measure maxSize layout =! { Width = 1; Height = 1 }
+
+    [<Test>]
+    let ``Measure border with border thickness test`` () =
+        let layout = border [Thickness (thickness 1 2 3 4)] (image [] onePixelGraphics)
+        measure maxSize layout =! { Width = 5; Height = 7 }
+    
+    [<Test>]
+    let ``Measure border with margin test`` () =
+        let layout = border [Margin (thickness 1 2 3 4);] (image [] onePixelGraphics)
+        measure maxSize layout =! { Width = 5; Height = 7 }
+
+    [<Test>]
+    let ``Measure border with padding test`` () =
+        let layout = border [Margin (thickness 4 3 2 1);] (image [] onePixelGraphics)
+        measure maxSize layout =! { Width = 7; Height = 5 }
+
+    [<Test>]
+    let ``Measure border with width and height while child is larger test`` () =
+        let layout = 
+            border [Width 3; Height 3] (
+                border [Width 10; Height 10] (
+                    image [] onePixelGraphics
+                )
+            )
+        measure maxSize layout =! { Width = 3; Height = 3 }

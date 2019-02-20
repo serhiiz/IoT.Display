@@ -611,3 +611,60 @@ module RenderLayoutTests =
 │██      │
 │▄▄      │
 └────────┘"""
+
+    [<Test>]
+    let ``Border thickness test`` () =
+        let g = createGraphics()
+        let emptyGraphics = Graphics(AddressingMode.ColumnMajor, Little, Size.empty)
+
+        border [Thickness (thickness 1 2 3 1); Margin (thicknessSame 1)] (
+            image [] emptyGraphics
+        )
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│ ▄▄▄▄▄▄ │
+│ █▀▀███ │
+│ █  ███ │
+│ ▀▀▀▀▀▀ │
+└────────┘"""
+
+    [<Test>]
+    let ``Border with child test`` () =
+        let g = createGraphics()
+
+        border [Thickness (thicknessSame 1); Padding (thicknessSame 1)] (
+            image [] point2x2
+        )
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│█▀▀▀▀▀▀█│
+│█ ██   █│
+│█      █│
+│█▄▄▄▄▄▄█│
+└────────┘"""
+
+    [<Test>]
+    let ``Border with child aligned center test`` () =
+        let g = createGraphics()
+
+        border [Thickness (thicknessSame 1); Padding (thicknessSame 1)] (
+            image [HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center] point2x2
+        )
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│█▀▀▀▀▀▀█│
+│█  ▄▄  █│
+│█  ▀▀  █│
+│█▄▄▄▄▄▄█│
+└────────┘"""
+
+    

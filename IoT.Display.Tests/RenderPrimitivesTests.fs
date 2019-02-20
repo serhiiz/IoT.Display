@@ -169,14 +169,10 @@ module RenderPrimitivesTests =
 └────────┘"""
 
     [<Test>]
-    [<TestCase(1,6,6,1)>]
-    [<TestCase(6,1,1,6)>]
-    [<TestCase(1,1,6,6)>]
-    [<TestCase(6,6,1,1)>]
-    let ``Rectangle test`` x1 y1 x2 y2 =
+    let ``Rectangle test`` () =
         let g = createGraphics()
 
-        Rectangle ({X = x1; Y = y1}, {X = x2; Y = y2})
+        Rectangle {Point = {X = 1; Y = 1}; Size = {Width = 6; Height = 6}}
         |> renderVisualToGraphics g
 
         let actual = g.ToString()
@@ -189,11 +185,10 @@ module RenderPrimitivesTests =
 └────────┘"""
 
     [<Test>]
-    [<TestCase(2,-6,5,16)>]
-    let ``Rectangle outside of boudaries test`` x1 y1 x2 y2 =
+    let ``Rectangle outside of boudaries test`` () =
         let g = createGraphics()
 
-        Rectangle ({X = x1; Y = y1}, {X = x2; Y = y2})
+        Rectangle {Point = {X = 2; Y = -1}; Size = {Width = 4; Height = 10}}
         |> renderVisualToGraphics g
 
         let actual = g.ToString()
@@ -204,6 +199,25 @@ module RenderPrimitivesTests =
 │  ████  │
 │  ████  │
 └────────┘"""
+
+    [<Test>]
+    [<TestCase(0,1)>]
+    [<TestCase(1,0)>]
+    let ``Rectangle with zero width/height test`` widht height =
+        let g = createGraphics()
+
+        Rectangle {Point = {X = 0; Y = 0}; Size = {Width = widht; Height = height}}
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│        │
+│        │
+│        │
+│        │
+└────────┘"""
+
     
     [<Test>]
     let ``Polyline test`` () =

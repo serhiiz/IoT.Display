@@ -1,7 +1,11 @@
 namespace IoT.Display
 open System
 
-type Thickness = {Left:int; Top:int; Right: int; Bottom:int}
+type Thickness = 
+    {Left:int; Top:int; Right: int; Bottom:int}
+    static member ( + ) (left: Thickness, right: Thickness) = 
+        {Left = left.Left + right.Left; Top = left.Top + right.Top; Right = left.Right + right.Right; Bottom = left.Bottom + right.Bottom}
+
 type Point = 
     { X:int; Y:int }
     static member ( + ) (left: Point, right: Point) = { X = left.X + right.X; Y = left.Y + right.Y }
