@@ -10,12 +10,12 @@ module MeasureLayoutTests =
 
     [<Test>]
     let ``Vertical empty stack test`` () =
-        let layout = stack Vertical [] []
+        let layout = stack [ Orientation Vertical; ] []
         measure maxSize layout =! Size.empty
 
     [<Test>]
     let ``Horizontal empty stack test`` () =
-        let layout = stack Horizontal [] []
+        let layout = stack [ Orientation Horizontal; ] []
         measure maxSize layout =! Size.empty
 
     [<Test>]
@@ -35,7 +35,7 @@ module MeasureLayoutTests =
 
     [<Test>]
     let ``Stack honors padding test`` () =
-        let layout = stack Vertical [Padding (thickness 4 3 2 1)] []
+        let layout = stack [ Orientation Vertical; Padding (thickness 4 3 2 1)] []
         measure maxSize layout =! { Width = 6; Height = 4 }
 
     [<Test>]
@@ -55,7 +55,7 @@ module MeasureLayoutTests =
 
     [<Test>]
     let ``Max size is honored while measuring stack`` () =
-        let layout = stack Horizontal [Width 10; Height 10] []
+        let layout = stack [ Orientation Horizontal; Width 10; Height 10] []
         measure {Width = 5; Height = 5} layout =! { Width = 5; Height = 5 }
 
     [<Test>]
@@ -70,7 +70,7 @@ module MeasureLayoutTests =
 
     [<Test>]
     let ``Measure stack test`` () =
-        let layout = stack Vertical [][
+        let layout = stack [ Orientation Vertical; ][
             text [] "1"
             text [] "2"
         ]

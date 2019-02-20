@@ -5,6 +5,12 @@ module Layout =
     open System
     open IoT.Display.Graphics
 
+    type IBaseAttribute = interface end
+    type IStackPanelAttribute =
+        inherit IBaseAttribute
+    type IAttribute = 
+        inherit IStackPanelAttribute
+
     type HorizontalAlignment = 
         | Left
         | Right
@@ -32,45 +38,35 @@ module Layout =
         | HorizontalAlignment of HorizontalAlignment
         | VerticalAlignment of VerticalAlignment
         | Dock of Dock
+        interface IAttribute
 
     type StackPanelOrientation = 
         | Horizontal
         | Vertical
 
-    type Properties = { Width: int option; Height: int option; Margin: Thickness; Padding: Thickness; HorizontalAlignment: HorizontalAlignment; VerticalAlignment: VerticalAlignment; Dock: Dock}
+    type StackPanelAttribute = 
+        | Orientation of StackPanelOrientation
+        interface IStackPanelAttribute
 
     type LayoutElement =
-        | StackPanel of (StackPanelOrientation*Properties*LayoutElement list)
-        | DockPanel of (Properties *LayoutElement list)
-        | Text of (Properties*string)
-        | Image of (Properties*Graphics)
+        | StackPanel of (IStackPanelAttribute list * LayoutElement list)
+        | DockPanel of (IAttribute list * LayoutElement list)
+        | Text of (IAttribute list * string)
+        | Image of (IAttribute list * Graphics)
 
-    let createProps attributes =
-        let emptyProps = {Width=None; Height=None; Margin = emptyThickness; Padding = emptyThickness; HorizontalAlignment=HorizontalAlignment.Stretch; VerticalAlignment=Stretch; Dock = Left}
-        let acc (s:Properties) (i:Attribute) =
-            match i with 
-            | Width w -> {s with Width = Some w}
-            | Height h -> {s with Height = Some h}
-            | Margin m -> {s with Margin = m }
-            | Padding p -> {s with Padding = p}
-            | HorizontalAlignment a -> {s with HorizontalAlignment = a}
-            | VerticalAlignment a -> {s with VerticalAlignment = a}
-            | Dock d -> {s with Dock = d}
+    type private Properties = { Width: int option; Height: int option; Margin: Thickness; Padding: Thickness; HorizontalAlignment: HorizontalAlignment; VerticalAlignment: VerticalAlignment; Dock: Dock}
 
-        attributes
-        |> List.fold acc emptyProps
+    let inline stack (attributes:IStackPanelAttribute list) children =
+        StackPanel (attributes, children)
 
-    let inline stack orientation (attributes:Attribute list) children =
-        StackPanel (orientation, attributes |> createProps, children)
+    let inline dock (attributes:IAttribute list) children =
+        DockPanel (attributes, children)
 
-    let inline dock (attributes:Attribute list) children =
-        DockPanel (attributes |> createProps, children)
+    let inline text (attributes:IAttribute list) str =
+        Text (attributes, str)
 
-    let inline text (attributes:Attribute list) str =
-        Text (attributes |> createProps, str)
-
-    let inline image (attributes:Attribute list) buffer =
-        Image (attributes |> createProps, buffer)
+    let inline image (attributes:IAttribute list) buffer =
+        Image (attributes, buffer)
 
     let private measureChar c = 
         let data = FontClass.getCharData c 
@@ -82,19 +78,55 @@ module Layout =
         |> Seq.sumBy measureChar
         |> (fun p -> {Width = p + Math.Max(str.Length - 1, 0); Height = FontClass.fontHeight})
 
-    let private getProps = function
-        | Text (props, _) -> props
-        | StackPanel (_, props, _) -> props
-        | Image (props, _) -> props
-        | DockPanel (props, _) -> props
+    let private tryCastAttribute<'T when 'T :> IBaseAttribute> (attr:IBaseAttribute) =
+        match attr with
+        | :? 'T as a -> Some a
+        | _ -> None
+
+    let private getGenericProperties element = 
+        let createProps attributes =
+            let emptyProps = {Width=None; Height=None; Margin = emptyThickness; Padding = emptyThickness; HorizontalAlignment=HorizontalAlignment.Stretch; VerticalAlignment=Stretch; Dock = Left}
+            let acc (s:Properties) (i:IAttribute) =
+                match i with
+                | :? Attribute as a -> 
+                    match a with
+                    | Width w -> {s with Width = Some w}
+                    | Height h -> {s with Height = Some h}
+                    | Margin m -> {s with Margin = m }
+                    | Padding p -> {s with Padding = p}
+                    | HorizontalAlignment a -> {s with HorizontalAlignment = a}
+                    | VerticalAlignment a -> {s with VerticalAlignment = a}
+                    | Dock d -> {s with Dock = d}
+                | _ -> s
+            attributes
+            |> List.fold acc emptyProps
+
+        match element with
+        | Text (props, _) -> props |> createProps
+        | StackPanel (props, _) -> props |> List.choose tryCastAttribute<IAttribute> |> createProps
+        | Image (props, _) -> props |> createProps
+        | DockPanel (props, _) -> props |> createProps
+
+    let private getStackPanelOrientation attrs = 
+        let acc orientation (attribute:IStackPanelAttribute) = 
+            match attribute with 
+            | :? StackPanelAttribute as spa ->
+                match spa with 
+                | Orientation o -> Some o
+            | _ -> orientation
+
+        attrs 
+        |> List.fold acc None
+        |> Option.defaultValue StackPanelOrientation.Vertical
 
     let rec measure (maxSize:Size) (element:LayoutElement) : Size = 
         let measureCore = function
             | Text (_, text) -> measureString text
             | Image (_, b) -> b.Size
-            | StackPanel (orientation, _, childs) ->
+            | StackPanel (attrs, childs) ->
                 let measureChild (size : Size, cons) child = 
                     let m = measure cons child
+                    let orientation = getStackPanelOrientation attrs
                     match orientation with
                     | Horizontal -> 
                         let size' = {Width = size.Width + m.Width; Height = Math.Max(size.Height, m.Height)}
@@ -110,7 +142,7 @@ module Layout =
             | DockPanel (_, childs) ->
                 let measureChild (size : Size, cons) child = 
                     let m = measure cons child
-                    let childProps = child |> getProps
+                    let childProps = child |> getGenericProperties
                     match childProps.Dock with
                     | Left
                     | Right -> 
@@ -129,11 +161,10 @@ module Layout =
 
                 childs |> List.fold measureChild (Size.empty, maxSize) |> fst
             
-        
-        let props = element |> getProps
-        let coreSize = element |> measureCore |> (+) (props.Padding |> Thickness.toSize)
+        let props = element |> getGenericProperties
+        let coreSize = lazy (element |> measureCore |> (+) (props.Padding |> Thickness.toSize))
 
-        {Width = props.Width |> Option.defaultValue coreSize.Width; Height = props.Height |> Option.defaultValue coreSize.Height} 
+        {Width = props.Width |> Option.defaultWith (fun () -> coreSize.Value.Width); Height = props.Height |> Option.defaultWith (fun () -> coreSize.Value.Height)} 
         |> (+) (props.Margin |> Thickness.toSize) 
         |> applyBounds maxSize
     
@@ -172,7 +203,7 @@ module Layout =
             
             {Point = {X = x; Y = y} + r.Point; Size = {Width = w; Height = h}}
 
-        let props = element |> getProps
+        let props = element |> getGenericProperties
         let desiredSize = measure area.Size element 
         let marginArea = shrink area props.Margin
         
@@ -180,12 +211,13 @@ module Layout =
         
         match element with
             | Text (_, s) -> s |> renderString writePixel rect
-            | StackPanel (o, _, childs) -> 
+            | StackPanel (attrs, childs) -> 
                 let paddingArea = shrink rect props.Padding
+                let orientation = getStackPanelOrientation attrs
                 let folder remainingRect c = 
                     let m = measure remainingRect.Size c
                     let (renderRect, remaining) = 
-                        match o with 
+                        match orientation with 
                         | Horizontal -> 
                             (shrink remainingRect (thickness 0 0 (remainingRect.Size.Width - m.Width) 0),
                                 shrink remainingRect (thickness m.Width 0 0 0))
@@ -201,7 +233,7 @@ module Layout =
                 let paddingArea = shrink rect props.Padding
                 let folder remainingRect c = 
                     let m = measure remainingRect.Size c
-                    let props = c |> getProps
+                    let props = c |> getGenericProperties
                     let (renderRect, remaining) = 
                         match props.Dock with
                         | Left -> 

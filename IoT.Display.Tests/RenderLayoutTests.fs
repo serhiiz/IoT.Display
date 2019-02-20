@@ -236,7 +236,7 @@ module RenderLayoutTests =
     let ``Horizontal stack test items aligned top`` () =
         let g = createGraphics()
 
-        stack Horizontal [] [
+        stack [ Orientation Horizontal; ] [
           image [VerticalAlignment VerticalAlignment.Top] point2x2
           image [VerticalAlignment VerticalAlignment.Top] point2x2
         ]
@@ -255,7 +255,7 @@ module RenderLayoutTests =
     let ``Horizontal stack aligned right items aligned bottom test`` () =
         let g = createGraphics()
 
-        stack Horizontal [HorizontalAlignment HorizontalAlignment.Right] [
+        stack [ Orientation Horizontal; HorizontalAlignment HorizontalAlignment.Right] [
           image [VerticalAlignment VerticalAlignment.Bottom] point2x2
           image [VerticalAlignment VerticalAlignment.Bottom] point2x2
         ]
@@ -274,7 +274,7 @@ module RenderLayoutTests =
     let ``Horizontal stack items aligned three ways test`` () =
         let g = createGraphics()
 
-        stack Horizontal [] [
+        stack [ Orientation Horizontal; ] [
           image [VerticalAlignment VerticalAlignment.Bottom] point2x2
           image [VerticalAlignment VerticalAlignment.Center] point2x2
           image [VerticalAlignment VerticalAlignment.Top] point2x2
@@ -294,7 +294,7 @@ module RenderLayoutTests =
     let ``Vertical stack test items aligned left`` () =
         let g = createGraphics()
 
-        stack Vertical [] [
+        stack [Orientation Vertical] [
           image [HorizontalAlignment HorizontalAlignment.Left] point2x2
           image [HorizontalAlignment HorizontalAlignment.Left] point2x2
         ]
@@ -313,7 +313,7 @@ module RenderLayoutTests =
     let ``Vertial stack aligned right items aligned right test`` () =
         let g = createGraphics()
 
-        stack Vertical [VerticalAlignment VerticalAlignment.Bottom] [
+        stack [Orientation Vertical; VerticalAlignment VerticalAlignment.Bottom] [
           image [HorizontalAlignment HorizontalAlignment.Right] point2x2
           image [HorizontalAlignment HorizontalAlignment.Right] point2x2
         ]
@@ -332,7 +332,7 @@ module RenderLayoutTests =
     let ``Vertical stack items aligned three ways test`` () =
         let g = createGraphics()
 
-        stack Vertical [] [
+        stack [Orientation Vertical] [
           image [HorizontalAlignment HorizontalAlignment.Right] point2x2
           image [HorizontalAlignment HorizontalAlignment.Center] point2x2
           image [HorizontalAlignment HorizontalAlignment.Left] point2x2
@@ -352,7 +352,7 @@ module RenderLayoutTests =
     let ``Horizontal stack items' horizontal alignment should be ignored test`` () =
         let g = createGraphics()
 
-        stack Horizontal [] [
+        stack [ Orientation Horizontal; ] [
           image [HorizontalAlignment HorizontalAlignment.Right] point2x2
           image [HorizontalAlignment HorizontalAlignment.Right] point2x2
         ]
@@ -372,11 +372,11 @@ module RenderLayoutTests =
         let g = createGraphics()
 
         dock [] [
-            stack Horizontal [Dock Top] [
+            stack [ Orientation Horizontal; Dock Top] [
               image [HorizontalAlignment HorizontalAlignment.Right] point2x2
               image [HorizontalAlignment HorizontalAlignment.Right] point2x2
             ]
-            stack Horizontal [Dock Bottom] [
+            stack [ Orientation Horizontal; Dock Bottom] [
               image [HorizontalAlignment HorizontalAlignment.Right] point2x2
               image [HorizontalAlignment HorizontalAlignment.Right] point2x2
             ]
@@ -396,7 +396,7 @@ module RenderLayoutTests =
     let ``Stack panel margin padding test `` () =
         let g = createGraphics()
 
-        stack Horizontal [Margin (thickness 1 1 0 1); Padding (thickness 1 1 0 1)] [
+        stack [ Orientation Horizontal; Margin (thickness 1 1 0 1); Padding (thickness 1 1 0 1)] [
             image [] point2x2
             image [Margin (thicknessSame 1)] point2x2
         ]
@@ -471,7 +471,7 @@ module RenderLayoutTests =
     let ``Vertical stack item margin test`` () =
         let g = createGraphics()
 
-        stack Vertical [] [
+        stack [Orientation Vertical] [
             image [Margin (thickness 1 0 0 0)] point2x2
             image [Margin (thickness 2 1 0 0)] point2x2
             image [Margin (thickness 3 1 0 0)] point2x2
@@ -572,7 +572,7 @@ module RenderLayoutTests =
     let ``Dock panel image out of bounds`` () =
         let g = createGraphics()
 
-        let margin = [Margin (thickness 1 0 0 0)]
+        let margin:IAttribute list = [Margin (thickness 1 0 0 0)]
         dock [] [
             image margin point2x2
             image margin point2x2
@@ -594,8 +594,8 @@ module RenderLayoutTests =
     let ``Stack panel image out of bounds`` () =
         let g = createGraphics()
 
-        let margin = [Margin (thickness 0 1 0 0 )]
-        stack Vertical [] [
+        let margin:IAttribute list = [Margin (thickness 0 1 0 0 )]
+        stack [Orientation Vertical] [
             image margin point2x2
             image margin point2x2
             image margin point2x2
