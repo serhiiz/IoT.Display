@@ -83,7 +83,7 @@ List.init 21 (fun _ -> r.Next(30) + 2)
 ![Visuals example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/visuals.bmp)
 
 ## Possible enhancements
-- Add Border
+- ~Add Border~
 - Add Text Direction
 - Add Font Size
 - Add Clip to Graphics
