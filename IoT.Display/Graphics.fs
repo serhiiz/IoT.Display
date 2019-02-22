@@ -78,3 +78,12 @@ module Graphics =
 
     let createFromDisplay (display:IDisplay) = 
         createFromDisplayCustomSize display display.Size
+
+    let clip rect (graphics:Graphics) = 
+        let copyRect = Rect.getIntersection (Rect.fromSize graphics.Size) rect
+        let newGraphics = Graphics(graphics.AddressingMode, graphics.Endian, copyRect.Size)
+        for i = copyRect.Point.X to copyRect.Point.X + copyRect.Size.Width - 1 do   
+            for j = copyRect.Point.Y to copyRect.Point.Y + copyRect.Size.Height - 1 do 
+                if (graphics.GetPixel i j = 1uy) then
+                    newGraphics.SetPixel (i - copyRect.Point.X) (j - copyRect.Point.Y)
+        newGraphics
