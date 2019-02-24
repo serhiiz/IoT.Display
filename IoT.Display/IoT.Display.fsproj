@@ -12,9 +12,9 @@
     <PackageTags>display IoT SSD1306 F# FSharp dock OLED</PackageTags>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <Version>1.0.0-alpha2</Version>
-    <AssemblyVersion>1.0.0.2</AssemblyVersion>
-    <FileVersion>1.0.0.2</FileVersion>
+    <Version>1.0.0-alpha3</Version>
+    <AssemblyVersion>1.0.0.3</AssemblyVersion>
+    <FileVersion>1.0.0.3</FileVersion>
     <PackageReleaseNotes>Added Polyline Visual;
 Handled out of bounds rendering;
 Fixed vertial line rendering.</PackageReleaseNotes>
