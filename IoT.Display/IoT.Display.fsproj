@@ -15,9 +15,9 @@
     <Version>1.0.0-alpha3</Version>
     <AssemblyVersion>1.0.0.3</AssemblyVersion>
     <FileVersion>1.0.0.3</FileVersion>
-    <PackageReleaseNotes>Added Polyline Visual;
-Handled out of bounds rendering;
-Fixed vertial line rendering.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added Border layout element;
+Added Quadratic Bezier primitive;
+Restricted attribute usage on layout elements.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
