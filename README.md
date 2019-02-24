@@ -8,6 +8,7 @@ The library is supposed to be used in applications where UI is rendered every ti
 ## Features:
 - Dock panel
 - Stack panel
+- Border
 - Text
 - Image
 - Horizontal/Vertical alignment
