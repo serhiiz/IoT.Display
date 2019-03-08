@@ -123,9 +123,7 @@ type SSD1306(device:IDevice) =
                     0xFFuy
                 |]
     
-    let sendCommand command =
-        getCommandBytes command
-        |> device.Write
+    
 
     let sendData data =
         data
@@ -133,6 +131,14 @@ type SSD1306(device:IDevice) =
         |> device.Write
 
     let mutable addressingMode = MemoryAddressingMode.Vertical
+
+    let sendCommand command =
+        match command with 
+        | SetMemoryAddressingMode mode -> addressingMode <- mode
+        | _ -> ()
+
+        getCommandBytes command
+        |> device.Write
 
     let display (g:Graphics) = 
         let buff = g.GetBuffer()
