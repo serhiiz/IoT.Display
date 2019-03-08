@@ -296,8 +296,3 @@ module Layout =
 
     let renderToGraphics (graphics:Graphics) element =
         render graphics (graphics.Size |> Rect.fromSize) element
-
-    let renderToDisplay (display:IDisplay) element =
-        let graphics = Graphics.createFromDisplay display
-        renderToGraphics graphics element
-        display.SendData (graphics.GetBuffer())

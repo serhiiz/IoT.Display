@@ -89,8 +89,3 @@ module Primitives =
         | Rectangle rect -> writeRectangle rect graphics
         | Polyline points -> writePolyline graphics points 
         | QuadraticBezier (p0, p1, p2) -> Bezier.writeQuadraticBezier p0 p1 p2 graphics writePolyline
-
-    let renderVisualToDisplay (display:IDisplay) visual =
-        let graphics = Graphics.createFromDisplay display
-        renderVisualToGraphics graphics visual
-        display.SendData (graphics.GetBuffer())

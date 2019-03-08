@@ -2,6 +2,7 @@
 
 open IoT.Display
 open IoT.Display.Devices
+open IoT.Display.Graphics
 open System
 
 type OnOff = 
@@ -57,8 +58,6 @@ type ISSD1306 =
     abstract member SendCommand: Command -> unit
 
 type SSD1306(device:IDevice) = 
-    let memoryAddressingMode = MemoryAddressingMode.Vertical
-
     let getPageCode = function
         | Page0 -> 0uy
         | Page1 -> 1uy
@@ -133,20 +132,23 @@ type SSD1306(device:IDevice) =
         |> Array.append [|0x40uy|]
         |> device.Write
 
-    let addressingMode = 
-        match memoryAddressingMode with 
-                | Vertical -> ColumnMajor
-                | Page
-                | Horizontal -> RowMajor
-    
-    do SetMemoryAddressingMode memoryAddressingMode |> sendCommand 
+    let mutable addressingMode = MemoryAddressingMode.Vertical
+
+    let display (g:Graphics) = 
+        let buff = g.GetBuffer()
+        sendData buff
+
+    do SetMemoryAddressingMode addressingMode |> sendCommand 
 
     interface ISSD1306 with
         member __.Size = {Width = 128; Height = 64}
-        member __.AddressingMode = addressingMode
+        member __.AddressingMode with get () = match addressingMode with 
+                                               | Vertical -> ColumnMajor
+                                               | Page
+                                               | Horizontal -> RowMajor
             
         member __.Endian = Endian.Little
-        member __.SendData(data) = sendData data
+        member __.Display(graphics) = display graphics
         member __.SendCommand(command) = sendCommand command
         member __.Dispose() = device.Dispose()
 

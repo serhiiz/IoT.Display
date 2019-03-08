@@ -73,12 +73,6 @@ module Graphics =
             let footer = new System.String(('└' :: List.replicate size.Width '─' @ ['┘']) |> List.toArray)
             System.String.Join(System.Environment.NewLine, header :: lines @ [footer])
 
-    let createFromDisplayCustomSize (display:IDisplay) size = 
-        Graphics(display.AddressingMode, display.Endian, size)
-
-    let createFromDisplay (display:IDisplay) = 
-        createFromDisplayCustomSize display display.Size
-
     let clip rect (graphics:Graphics) = 
         let copyRect = Rect.getIntersection (Rect.fromSize graphics.Size) rect
         let newGraphics = Graphics(graphics.AddressingMode, graphics.Endian, copyRect.Size)

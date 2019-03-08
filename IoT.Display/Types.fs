@@ -26,12 +26,6 @@ type AddressingMode =
 type Endian = 
     | Little 
     | Big
-  
-type IDisplay = 
-    abstract member Size: Size
-    abstract member AddressingMode: AddressingMode
-    abstract member Endian: Endian
-    abstract member SendData: byte[] -> unit
 
 [<AutoOpen>]
 module Thickness =
