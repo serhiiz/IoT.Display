@@ -29,6 +29,10 @@ type Endian =
     | Big
 
 [<AutoOpen>]
+module Point =
+    let zero = {X = 0; Y = 0}
+
+[<AutoOpen>]
 module Thickness =
     let thickness l t r b = {Left = l; Top = t; Right = r; Bottom = b}
     let thicknessSimm lr tb = thickness lr tb lr tb
@@ -53,7 +57,7 @@ module Size =
 [<AutoOpen>]
 module Rect =
     let fromSize s = 
-        {Point = {X = 0; Y = 0;}; Size = s}
+        {Point = zero; Size = s}
 
     let isPointWithin r p =
         p.X >= r.Point.X && p.Y >= r.Point.Y && p.X < (r.Point.X + r.Size.Width) && p.Y < (r.Point.Y + r.Size.Height)

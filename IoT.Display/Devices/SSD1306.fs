@@ -57,7 +57,7 @@ type ISSD1306 =
     inherit IDisposable
     abstract member SendCommand: Command -> unit
 
-type SSD1306(device:IDevice) = 
+type SSD1306(device:IDevice) as this = 
     let getPageCode = function
         | Page0 -> 0uy
         | Page1 -> 1uy
@@ -130,28 +130,42 @@ type SSD1306(device:IDevice) =
         |> Array.append [|0x40uy|]
         |> device.Write
 
-    let mutable addressingMode = MemoryAddressingMode.Page
+    let size = {Width = 128; Height = 64}
+    let endian = Little
+    let mutable addressingMode = AddressingMode.Page
 
     let sendCommand command =
         match command with 
-        | SetMemoryAddressingMode mode -> addressingMode <- mode
+        | SetMemoryAddressingMode mode -> 
+            addressingMode <- match mode with 
+                              | Vertical -> ColumnMajor
+                              | Page -> AddressingMode.Page
+                              | Horizontal -> RowMajor
         | _ -> ()
 
         getCommandBytes command
         |> device.Write
 
+    let ensureModeAndEndianess (g:Graphics) = 
+        let displayRect = Rect.fromSize size
+        if g.AddressingMode = addressingMode && g.Endian = endian 
+        then 
+            Graphics.clip displayRect g
+        else
+            let newGraphics = Graphics.createFromDisplay this
+            Graphics.copyTo displayRect newGraphics g
+            newGraphics
+
     let display (g:Graphics) = 
-        let buff = g.GetBuffer()
-        sendData buff
+        g 
+        |> ensureModeAndEndianess 
+        |> (fun p -> p.GetBuffer()) 
+        |> sendData
 
     interface ISSD1306 with
-        member __.Size = {Width = 128; Height = 64}
-        member __.AddressingMode with get () = match addressingMode with 
-                                               | Vertical -> ColumnMajor
-                                               | Page -> AddressingMode.Page
-                                               | Horizontal -> RowMajor
-            
-        member __.Endian = Endian.Little
+        member __.Size = size
+        member __.AddressingMode with get () = addressingMode
+        member __.Endian = endian
         member __.Display(graphics) = display graphics
         member __.SendCommand(command) = sendCommand command
         member __.Dispose() = device.Dispose()
