@@ -182,7 +182,7 @@ type SSD1306(device:IDevice) as this =
             displayRect <- {Point = { X = startAddress |> int; Y = displayRect.Point.Y}; Size = {Width = endAddress - startAddress |> int |> (+) 1; Height = displayRect.Size.Height}}
         | SetPageAddress (startPage, endPage) -> 
             let minY = getPageCode startPage |> int |> (*) BitsInByte
-            let maxY = getPageCode endPage |> int |> (*) BitsInByte
+            let maxY = (getPageCode endPage |> int |> (+) 1 |> (*) BitsInByte) - 1
             displayRect <- {Point = { X = displayRect.Point.X; Y = minY }; Size = {Width = displayRect.Size.Width; Height = maxY - minY + 1}}
         | _ -> ()
 
@@ -240,12 +240,12 @@ module SSD1306 =
 
     let setup64x48 = 
         [
-            SetColumnAddress (31uy, 95uy)
-            SetPageAddress (Page1, Page6)
+            SetColumnAddress (32uy, 95uy)
+            SetPageAddress (Page2, Page7)
         ]
 
     let setup128x32 = 
         [
             SetColumnAddress (0uy, 127uy)
-            SetPageAddress (Page1, Page5)
+            SetPageAddress (Page4, Page7)
         ]
