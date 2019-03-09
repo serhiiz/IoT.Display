@@ -83,7 +83,6 @@ type SSD1306(device:IDevice) as this =
         | SetChargePump Off -> [|0x00uy; 0x8duy; 0x10uy |]
         | SetMemoryAddressingMode Horizontal -> [|0x00uy; 0x20uy; 0x00uy|]
         | SetMemoryAddressingMode Vertical -> [|0x00uy; 0x20uy; 0x01uy|]
-        | SetMemoryAddressingMode Page -> [|0x00uy; 0x20uy; 0x02uy|]
         | SetSegmentRemap COL0_SEG0 -> [|0x00uy; 0xA0uy|]
         | SetSegmentRemap COL127_SEG0 -> [|0x00uy; 0xA1uy|]
         | SetCOMOutputScanDirection Normal -> [|0x00uy; 0xC0uy|]
