@@ -21,6 +21,10 @@ type COMOutputScanDirection =
     | Normal
     | Remapped
 
+type COMPinConfiguration = 
+    | Sequential
+    | Alternative
+
 type Page = Page0 | Page1 | Page2 | Page3 | Page4 | Page5 | Page6 | Page7
 type ScrollInterval = Frames256 | Frames128 | Frames64  | Frames25  | Frames5 | Frames3  | Frames2
 
@@ -41,6 +45,11 @@ type VerticalScrollConfig = {
     Height: byte
 }
 
+type VCOMDeselectLevel = 
+    | VCC_065
+    | VCC_077
+    | VCC_083
+
 type Command =
     | SetDisplay of OnOff
     | SetChargePump of OnOff
@@ -50,6 +59,19 @@ type Command =
     | SetupScroll of HorizontalScrollConfig * VerticalScrollConfig option
     | ActivateScroll
     | DeactivateScroll
+    | SetContrastControl of byte
+    | EntireDisplayOn of bool
+    | InverseDisplay of bool
+    | SetColumnAddress of startAddress:byte * endAddress:byte
+    | SetPageAddress of startPage:Page * endPage:Page
+    | SetDisplayStartLine of byte
+    | SetMultiplexRatio of byte
+    | SetDisplayOffset of byte
+    | SetCOMPinsHardwareConfiguration of COMPinConfiguration * enableCOMLeftRightRemap:bool
+    | SetDisplayClockDivideRatioOscilatorFrequency of divideRatio:byte * oscillatorFrequency:byte
+    | SetPreChargePeriod of phase1:byte * phase2:byte
+    | SetVCOMHDeselectLevel of VCOMDeselectLevel
+    | NOP
 
 type ISSD1306 = 
     inherit IDisplay
@@ -77,18 +99,13 @@ type SSD1306(device:IDevice) as this =
         | Frames2 -> 0b111uy
 
     let getCommandBytes = function
+        | SetContrastControl c -> [| 0x00uy; 0x81uy; c |]
+        | EntireDisplayOn false -> [| 0x00uy; 0xA4uy |]
+        | EntireDisplayOn true -> [| 0x00uy; 0xA5uy |]
+        | InverseDisplay false -> [| 0x00uy; 0xA6uy |]
+        | InverseDisplay true -> [| 0x00uy; 0xA7uy |]
         | SetDisplay On -> [|0x00uy; 0xAFuy|]
         | SetDisplay Off -> [|0x00uy; 0xAEuy|]
-        | SetChargePump On -> [|0x00uy; 0x8duy; 0x14uy |]
-        | SetChargePump Off -> [|0x00uy; 0x8duy; 0x10uy |]
-        | SetMemoryAddressingMode Horizontal -> [|0x00uy; 0x20uy; 0x00uy|]
-        | SetMemoryAddressingMode Vertical -> [|0x00uy; 0x20uy; 0x01uy|]
-        | SetSegmentRemap COL0_SEG0 -> [|0x00uy; 0xA0uy|]
-        | SetSegmentRemap COL127_SEG0 -> [|0x00uy; 0xA1uy|]
-        | SetCOMOutputScanDirection Normal -> [|0x00uy; 0xC0uy|]
-        | SetCOMOutputScanDirection Remapped -> [|0x00uy; 0xC8uy|]
-        | ActivateScroll -> [|0x00uy; 0x2Fuy|]
-        | DeactivateScroll -> [|0x00uy; 0x2Euy|]
         | SetupScroll (hconfig, vconfigOption) -> 
             match vconfigOption with 
             | Some vconfig ->
@@ -120,15 +137,38 @@ type SSD1306(device:IDevice) as this =
                     0uy
                     0xFFuy
                 |]
-    
-    
-
+        | DeactivateScroll -> [|0x00uy; 0x2Euy|]
+        | ActivateScroll -> [|0x00uy; 0x2Fuy|]
+        | SetMemoryAddressingMode Horizontal -> [|0x00uy; 0x20uy; 0x00uy|]
+        | SetMemoryAddressingMode Vertical -> [|0x00uy; 0x20uy; 0x01uy|]
+        | SetColumnAddress (startAddress, endAddress) -> [|0x00uy; 0x21uy; startAddress &&& 0x7Fuy; endAddress &&& 0x7Fuy|]
+        | SetPageAddress (startPage, endPage) -> [|0x00uy; 0x22uy; getPageCode startPage; getPageCode endPage|]
+        | SetDisplayStartLine startLine -> [|0x00uy; (startLine &&& 0x3Fuy) ||| 0x40uy |]
+        | SetSegmentRemap COL0_SEG0 -> [|0x00uy; 0xA0uy|]
+        | SetSegmentRemap COL127_SEG0 -> [|0x00uy; 0xA1uy|]
+        | SetMultiplexRatio n -> [|0x00uy; 0xA8uy; n &&& 0x3Fuy|]
+        | SetCOMOutputScanDirection Normal -> [|0x00uy; 0xC0uy|]
+        | SetCOMOutputScanDirection Remapped -> [|0x00uy; 0xC8uy|]
+        | SetDisplayOffset verticalShift -> [|0x00uy; verticalShift &&& 0x3Fuy|]
+        | SetCOMPinsHardwareConfiguration (COMPinConfiguration.Sequential, false) -> [|0x00uy; 0xDAuy; 0x02uy|]
+        | SetCOMPinsHardwareConfiguration (COMPinConfiguration.Alternative, false) -> [|0x00uy; 0xDAuy; 0x12uy|]
+        | SetCOMPinsHardwareConfiguration (COMPinConfiguration.Sequential, true) -> [|0x00uy; 0xDAuy; 0x22uy|]
+        | SetCOMPinsHardwareConfiguration (COMPinConfiguration.Alternative, true) -> [|0x00uy; 0xDAuy; 0x32uy|]
+        | SetDisplayClockDivideRatioOscilatorFrequency (divideRatio, oscillatorFrequency) -> [| 0x00uy; 0xD5uy; (divideRatio &&& 0x0Fuy) ||| ((oscillatorFrequency &&& 0x0Fuy) <<< 4)|]
+        | SetPreChargePeriod (phase1, phase2) -> [|0x00uy; 0xD9uy; (phase1 &&& 0x0Fuy) ||| ((phase2 &&& 0x0Fuy) <<< 4)|]
+        | SetVCOMHDeselectLevel VCC_065 -> [|0x00uy; 0xDBuy; 0x00uy|]
+        | SetVCOMHDeselectLevel VCC_077 -> [|0x00uy; 0xDBuy; 0x20uy|]
+        | SetVCOMHDeselectLevel VCC_083 -> [|0x00uy; 0xDBuy; 0x30uy|]
+        | NOP -> [|0x00uy; 0xE3uy|]
+        | SetChargePump On -> [|0x00uy; 0x8duy; 0x14uy|]
+        | SetChargePump Off -> [|0x00uy; 0x8duy; 0x10uy|]
+        
     let sendData data =
         data
         |> Array.append [|0x40uy|]
         |> device.Write
 
-    let size = {Width = 128; Height = 64}
+    let mutable displayRect = { Point = Point.zero; Size = {Width = 128; Height = 64} }
     let endian = Little
     let mutable addressingMode = AddressingMode.Page
 
@@ -138,19 +178,25 @@ type SSD1306(device:IDevice) as this =
             addressingMode <- match mode with 
                               | Vertical -> ColumnMajor
                               | Horizontal -> Page
+        | SetColumnAddress (startAddress, endAddress) ->
+            displayRect <- {Point = { X = startAddress |> int; Y = displayRect.Point.Y}; Size = {Width = endAddress - startAddress |> int |> (+) 1; Height = displayRect.Size.Height}}
+        | SetPageAddress (startPage, endPage) -> 
+            let minY = getPageCode startPage |> int |> (*) BitsInByte
+            let maxY = getPageCode endPage |> int |> (*) BitsInByte
+            displayRect <- {Point = { X = displayRect.Point.X; Y = minY }; Size = {Width = displayRect.Size.Width; Height = maxY - minY + 1}}
         | _ -> ()
 
         getCommandBytes command
         |> device.Write
 
     let ensureModeAndEndianess (g:Graphics) = 
-        let displayRect = Rect.fromSize size
+        let rect = Rect.fromSize displayRect.Size
         if g.AddressingMode = addressingMode && g.Endian = endian 
         then 
-            Graphics.clip displayRect g
+            Graphics.clip rect g
         else
             let newGraphics = Graphics.createFromDisplay this
-            Graphics.copyTo displayRect newGraphics g
+            Graphics.copyTo rect newGraphics g
             newGraphics
 
     let display (g:Graphics) = 
@@ -162,7 +208,7 @@ type SSD1306(device:IDevice) as this =
     do SetMemoryAddressingMode Horizontal |> sendCommand
 
     interface ISSD1306 with
-        member __.Size = size
+        member __.Size with get () = displayRect.Size
         member __.AddressingMode with get () = addressingMode
         member __.Endian = endian
         member __.Display(graphics) = display graphics
@@ -185,3 +231,21 @@ module SSD1306 =
     
     let turnOn = 
         SetDisplay On
+
+    let setup128x64 = 
+        [
+            SetColumnAddress (0uy, 127uy)
+            SetPageAddress (Page0, Page7)
+        ]
+
+    let setup64x48 = 
+        [
+            SetColumnAddress (31uy, 95uy)
+            SetPageAddress (Page1, Page6)
+        ]
+
+    let setup128x32 = 
+        [
+            SetColumnAddress (0uy, 127uy)
+            SetPageAddress (Page1, Page5)
+        ]
