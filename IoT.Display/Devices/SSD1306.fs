@@ -12,7 +12,6 @@ type OnOff =
 type MemoryAddressingMode = 
     | Horizontal
     | Vertical
-    | Page
     
 type SegmentRemap = 
     | COL0_SEG0
@@ -139,8 +138,7 @@ type SSD1306(device:IDevice) as this =
         | SetMemoryAddressingMode mode -> 
             addressingMode <- match mode with 
                               | Vertical -> ColumnMajor
-                              | Page -> AddressingMode.Page
-                              | Horizontal -> RowMajor
+                              | Horizontal -> Page
         | _ -> ()
 
         getCommandBytes command
@@ -161,6 +159,8 @@ type SSD1306(device:IDevice) as this =
         |> ensureModeAndEndianess 
         |> (fun p -> p.GetBuffer()) 
         |> sendData
+
+    do SetMemoryAddressingMode Horizontal |> sendCommand
 
     interface ISSD1306 with
         member __.Size = size
