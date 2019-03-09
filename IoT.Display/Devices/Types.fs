@@ -15,6 +15,7 @@ type IDisplay =
     abstract member Endian: Endian
     abstract member Display: Graphics -> unit
 
+[<AutoOpen>]
 module Graphics =
     let createFromDisplayCustomSize (display:IDisplay) size = 
         Graphics(display.AddressingMode, display.Endian, size)
@@ -22,12 +23,14 @@ module Graphics =
     let createFromDisplay (display:IDisplay) = 
         createFromDisplayCustomSize display display.Size
 
+[<AutoOpen>]
 module Primitives =
     let renderVisualToDisplay (display:IDisplay) visual =
         let graphics = Graphics.createFromDisplay display
         Primitives.renderVisualToGraphics graphics visual
         display.Display graphics
 
+[<AutoOpen>]
 module Layout = 
     let renderToDisplay (display:IDisplay) element =
         let graphics = Graphics.createFromDisplay display
