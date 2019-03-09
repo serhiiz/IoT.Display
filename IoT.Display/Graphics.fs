@@ -7,18 +7,22 @@ module Graphics =
 
     let private pxToBytes px = px / BitsInByte + (if px % BitsInByte <> 0 then 1 else 0)
     let private getBufferLength widthBytes heightBytes size = function
+        | Page
         | ColumnMajor -> heightBytes * size.Width
         | RowMajor -> widthBytes * size.Height
 
-    type Graphics private(mode, endian, size, buffer, widthBytes, heighBytes) =
+    type Graphics private(mode, endian, size, buffer, widthBytes, heightBytes) =
         let getByteIndex x y = function
-            | ColumnMajor -> x * heighBytes + y / BitsInByte
+            | Page -> x + (y / BitsInByte) * size.Width
+            | ColumnMajor -> x * heightBytes + y / BitsInByte
             | RowMajor -> y * widthBytes + x / BitsInByte
 
         let getBitIndex x y mode endian = 
             match (mode, endian) with
+            | (Page, Little)
             | (ColumnMajor, Little) -> y % BitsInByte
             | (RowMajor, Little) -> x % BitsInByte
+            | (Page, Big)
             | (ColumnMajor, Big) -> BitsInByte - y % BitsInByte - 1
             | (RowMajor, Big) -> BitsInByte - x % BitsInByte - 1
         

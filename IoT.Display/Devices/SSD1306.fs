@@ -130,7 +130,7 @@ type SSD1306(device:IDevice) =
         |> Array.append [|0x40uy|]
         |> device.Write
 
-    let mutable addressingMode = MemoryAddressingMode.Vertical
+    let mutable addressingMode = MemoryAddressingMode.Page
 
     let sendCommand command =
         match command with 
@@ -144,13 +144,11 @@ type SSD1306(device:IDevice) =
         let buff = g.GetBuffer()
         sendData buff
 
-    do SetMemoryAddressingMode addressingMode |> sendCommand 
-
     interface ISSD1306 with
         member __.Size = {Width = 128; Height = 64}
         member __.AddressingMode with get () = match addressingMode with 
                                                | Vertical -> ColumnMajor
-                                               | Page
+                                               | Page -> AddressingMode.Page
                                                | Horizontal -> RowMajor
             
         member __.Endian = Endian.Little

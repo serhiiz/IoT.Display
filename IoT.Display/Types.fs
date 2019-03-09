@@ -22,6 +22,7 @@ type Rect =
 type AddressingMode = 
     | RowMajor 
     | ColumnMajor
+    | Page
 
 type Endian = 
     | Little 

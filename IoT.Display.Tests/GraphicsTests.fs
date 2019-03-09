@@ -43,6 +43,24 @@ module GraphicsTests =
                            0x00uy; 0x08uy; 0x00uy; 0x04uy; 0x00uy; 0x02uy; 0x80uy; 0x01uy|]
 
     [<Test>]
+    let ``Diagonal graphics test Page+Little`` () =
+        let g = getAssymetricDiagonalGraphics Page Little
+
+        g.GetBuffer() =! [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy; 
+                           0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x01uy; 
+                           0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy;
+                           0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
+
+    [<Test>]
+    let ``Diagonal graphics test Page+Big`` () =
+        let g = getAssymetricDiagonalGraphics Page Big
+
+        g.GetBuffer() =! [|0x80uy; 0x40uy; 0x20uy; 0x10uy; 0x08uy; 0x04uy; 0x02uy; 0x01uy; 
+                           0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x80uy; 
+                           0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy;                            
+                           0x80uy; 0x40uy; 0x20uy; 0x10uy; 0x08uy; 0x04uy; 0x02uy; 0x01uy|]
+
+    [<Test>]
     let ``Diagonal graphics test RowMajor+Little`` () =
         let g = getAssymetricDiagonalGraphics RowMajor Little
 
@@ -66,6 +84,14 @@ module GraphicsTests =
     [<TestCase(3, 9, 6)>]
     let ``Verify graphics buffer length Column Major`` width height expectedLength =
         let g = Graphics(ColumnMajor, Little, {Size.Width = width; Height = height})
+        g.GetBuffer().Length =! expectedLength
+
+    [<Test>]
+    [<TestCase(3, 3, 3)>]
+    [<TestCase(3, 7, 3)>]
+    [<TestCase(3, 9, 6)>]
+    let ``Verify graphics buffer length Page`` width height expectedLength =
+        let g = Graphics(Page, Little, {Size.Width = width; Height = height})
         g.GetBuffer().Length =! expectedLength
     
     [<Test>]
