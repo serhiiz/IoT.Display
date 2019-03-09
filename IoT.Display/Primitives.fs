@@ -53,7 +53,8 @@ module Primitives =
 
             for y = minY to maxY do 
                 let x = if (dx = 0) then x1 else ((y |> float) - b.Value) / k.Value |> System.Math.Round |> int
-                graphics.SetPixel x y
+                if x >= 0 && x < graphics.Size.Width then
+                    graphics.SetPixel x y
 
         else
             let minX = Math.Max(Math.Min(x1, x2), 0)
@@ -63,7 +64,8 @@ module Primitives =
             
             for x = minX to maxX do 
                 let y = (k * (x |> float) + b) |> System.Math.Round |> int
-                graphics.SetPixel x y
+                if y >= 0 && y < graphics.Size.Height then
+                    graphics.SetPixel x y
     
     let private writeRectangle (rect:Rect) (graphics:Graphics) =
         let x = Math.Max(rect.Point.X, 0)

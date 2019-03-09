@@ -318,3 +318,39 @@ module RenderPrimitivesTests =
 │        │
 │        │
 └────────┘"""
+
+    [<Test>]
+    let ``Non-square graphics diaonal light slope test`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 16; Height = 8})
+
+        Line ({X = 0; Y = 0}, {X = 15; Y = 9})
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────────────┐
+│▀▄▄             │
+│   ▀▀▄          │
+│      ▀▀▄▄      │
+│          ▀▄▄   │
+└────────────────┘"""
+
+    [<Test>]
+    let ``Non-square graphics diaonal light slope test 2`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 8; Height = 16})
+
+        Line ({X = 0; Y = 0}, {X = 9; Y = 15})
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│▀▄      │
+│ ▀▄     │
+│  ▀▄    │
+│    █   │
+│     █  │
+│      ▀▄│
+│       ▀│
+│        │
+└────────┘"""
