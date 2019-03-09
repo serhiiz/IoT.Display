@@ -184,4 +184,4 @@ module GraphicsTests =
 
         copyTo {Point = {X = 0; Y = 0}; Size = {Width = 8; Height = 8}} targetGraphics sourceGraphics
         
-        targetGraphics.GetBuffer() =! [|0x01uy; 0x00uy; 0x02uy; 0x00uy; 0x04uy; 0x00uy; 0x08uy; 0x00uy|]
+        targetGraphics.GetBuffer() =! [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
