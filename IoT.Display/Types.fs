@@ -19,15 +19,6 @@ type Size =
 type Rect = 
     {Point:Point; Size:Size}
 
-type AddressingMode = 
-    | RowMajor 
-    | ColumnMajor
-    | Page
-
-type Endian = 
-    | Little 
-    | Big
-
 [<AutoOpen>]
 module Point =
     let zero = {X = 0; Y = 0}

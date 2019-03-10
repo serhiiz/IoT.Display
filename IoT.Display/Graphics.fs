@@ -2,6 +2,15 @@ namespace IoT.Display
 
 module Graphics =
 
+    type AddressingMode = 
+        | RowMajor 
+        | ColumnMajor
+        | Page
+
+    type Endian = 
+        | Little 
+        | Big
+
     [<Literal>]
     let BitsInByte = 8   
 
