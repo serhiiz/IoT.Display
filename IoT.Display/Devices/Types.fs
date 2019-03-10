@@ -12,13 +12,13 @@ type IDevice =
 type IDisplay = 
     abstract member Size: Size
     abstract member AddressingMode: AddressingMode
-    abstract member Endian: Endian
+    abstract member Endianness: Endianness
     abstract member Display: Graphics -> unit
 
 [<AutoOpen>]
 module Graphics =
     let createFromDisplayCustomSize (display:IDisplay) size = 
-        Graphics(display.AddressingMode, display.Endian, size)
+        Graphics(display.AddressingMode, display.Endianness, size)
 
     let createFromDisplay (display:IDisplay) = 
         createFromDisplayCustomSize display display.Size

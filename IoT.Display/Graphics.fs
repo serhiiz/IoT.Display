@@ -7,7 +7,7 @@ module Graphics =
         | ColumnMajor
         | Page
 
-    type Endian = 
+    type Endianness = 
         | Little 
         | Big
 

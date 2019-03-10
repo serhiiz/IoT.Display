@@ -169,7 +169,7 @@ type SSD1306(device:IDevice) as this =
         |> device.Write
 
     let mutable displayRect = { Point = Point.zero; Size = {Width = 128; Height = 64} }
-    let endian = Little
+    let endianness = Little
     let mutable addressingMode = AddressingMode.Page
 
     let sendCommand command =
@@ -191,7 +191,7 @@ type SSD1306(device:IDevice) as this =
 
     let ensureModeAndEndianess (g:Graphics) = 
         let rect = Rect.fromSize displayRect.Size
-        if g.AddressingMode = addressingMode && g.Endian = endian 
+        if g.AddressingMode = addressingMode && g.Endian = endianness 
         then 
             Graphics.clip rect g
         else
@@ -210,7 +210,7 @@ type SSD1306(device:IDevice) as this =
     interface ISSD1306 with
         member __.Size with get () = displayRect.Size
         member __.AddressingMode with get () = addressingMode
-        member __.Endian = endian
+        member __.Endianness = endianness
         member __.Display(graphics) = display graphics
         member __.SendCommand(command) = sendCommand command
         member __.Dispose() = device.Dispose()
