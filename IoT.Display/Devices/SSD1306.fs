@@ -196,7 +196,7 @@ type SSD1306(device:IDevice) as this =
             Graphics.clip rect g
         else
             let newGraphics = Graphics.createFromDisplay this
-            Graphics.copyTo rect newGraphics g
+            Graphics.copyTo rect newGraphics rect g
             newGraphics
 
     let display (g:Graphics) = 

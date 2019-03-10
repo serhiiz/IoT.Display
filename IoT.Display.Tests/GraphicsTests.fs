@@ -165,7 +165,8 @@ module GraphicsTests =
         let sourceGraphics = Graphics(Page, Little, {Size.Width = 16; Height = 16}, buffer)
         let targetGraphics = Graphics(ColumnMajor, Little, {Size.Width = 16; Height = 16})
 
-        copyTo {Point = {X = 0; Y = 0}; Size = {Width=16;Height=16}} targetGraphics sourceGraphics
+        let rect = {Point = {X = 0; Y = 0}; Size = {Width=16;Height=16}}
+        copyTo rect targetGraphics rect sourceGraphics
         
         targetGraphics.GetBuffer() =! [|0x01uy; 0x00uy; 0x02uy; 0x00uy; 0x04uy; 0x00uy; 0x08uy; 0x00uy; 
                                         0x10uy; 0x00uy; 0x20uy; 0x00uy; 0x40uy; 0x00uy; 0x80uy; 0x00uy;
@@ -173,7 +174,7 @@ module GraphicsTests =
                                         0x00uy; 0x10uy; 0x00uy; 0x20uy; 0x00uy; 0x40uy; 0x01uy; 0x80uy|]
 
     [<Test>]
-    let ``Resize to smaller using copy to test`` () =
+    let ``Clip to first quarter using copy to test`` () =
         let buffer = [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy; 
                        0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x01uy; 
                        0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy;
@@ -182,6 +183,23 @@ module GraphicsTests =
         let sourceGraphics = Graphics(Page, Little, {Size.Width = 16; Height = 16}, buffer)
         let targetGraphics = Graphics(Page, Little, {Size.Width = 8; Height = 8})
 
-        copyTo {Point = {X = 0; Y = 0}; Size = {Width = 8; Height = 8}} targetGraphics sourceGraphics
+        let rect = {Point = {X = 0; Y = 0}; Size = {Width = 8; Height = 8}}
+        copyTo rect targetGraphics rect sourceGraphics
+        
+        targetGraphics.GetBuffer() =! [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
+
+    [<Test>]
+    let ``Clip to third quarter using copy to test`` () =
+        let buffer = [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy; 
+                       0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x01uy; 
+                       0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy;
+                       0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
+
+        let sourceGraphics = Graphics(Page, Little, {Size.Width = 16; Height = 16}, buffer)
+        let targetGraphics = Graphics(Page, Little, {Size.Width = 8; Height = 8})
+
+        let targetRect = {Point = {X = 0; Y = 0}; Size = {Width = 8; Height = 8}}
+        let sourceRect = {Point = {X = 8; Y = 8}; Size = {Width = 8; Height = 8}}
+        copyTo targetRect targetGraphics sourceRect sourceGraphics
         
         targetGraphics.GetBuffer() =! [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]

@@ -3,6 +3,7 @@ namespace IoT.Display.Tests
 open NUnit.Framework
 open IoT.Display
 open IoT.Display.Graphics
+open IoT.Display.Primitives
 open IoT.Display.Layout
 
 module RenderLayoutTests = 
@@ -667,4 +668,21 @@ module RenderLayoutTests =
 │█▄▄▄▄▄▄█│
 └────────┘"""
 
+    [<Test>]
+    let ``Canvas draw centered line test`` () =
+        let g = createGraphics()
+
+        canvas [HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center; Width 3; Height 1] [
+            Visual.Line (Point.zero, {X = 3; Y = 0})
+        ]
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│        │
+│  ▄▄▄   │
+│        │
+│        │
+└────────┘"""
     

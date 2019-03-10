@@ -62,6 +62,7 @@ module Layout =
         | Border of (IBorderAttribute list * LayoutElement)
         | Text of (IAttribute list * string)
         | Image of (IAttribute list * Graphics)
+        | Canvas of (IAttribute list * Visual list)
 
     type private Properties = { Width: int option; Height: int option; Margin: Thickness; Padding: Thickness; HorizontalAlignment: HorizontalAlignment; VerticalAlignment: VerticalAlignment; Dock: Dock}
 
@@ -79,6 +80,9 @@ module Layout =
 
     let inline image (attributes:IAttribute list) buffer =
         Image (attributes, buffer)
+
+    let inline canvas (attributes:IAttribute list) children =
+        Canvas (attributes, children)
 
     let private measureChar c = 
         let data = FontClass.getCharData c 
@@ -119,6 +123,7 @@ module Layout =
         | Image (props, _) -> props |> createProps
         | DockPanel (props, _) -> props |> createProps
         | Border (props, _) -> props |> List.choose tryCastAttribute<IAttribute> |> createProps
+        | Canvas (props, _ ) -> props |> createProps
 
     let private getStackPanelOrientation attrs = 
         let acc orientation (attribute:IStackPanelAttribute) = 
@@ -188,6 +193,7 @@ module Layout =
             | Border (attrs, child) ->
                 let thickness = getBorderThickness attrs
                 measure maxSize child |> (+) (thickness |> Thickness.toSize)
+            | Canvas _ -> Size.empty
 
         let props = element |> getGenericProperties
         let coreSize = lazy (element |> measureCore |> (+) (props.Padding |> Thickness.toSize))
@@ -293,6 +299,11 @@ module Layout =
                 |> List.iter (renderVisualToGraphics graphics)
                 let childRect = shrink rect (bt + props.Padding)
                 render graphics childRect child
+            | Canvas (_, children) ->
+                let g = Graphics(graphics.AddressingMode, graphics.Endian, rect.Size)
+                children |> List.iter (renderVisualToGraphics g)
+                let sourceRect = Rect.fromSize graphics.Size
+                copyTo rect graphics sourceRect g
 
     let renderToGraphics (graphics:Graphics) element =
         render graphics (graphics.Size |> Rect.fromSize) element
