@@ -86,18 +86,6 @@ module Graphics =
             let footer = new System.String(('└' :: List.replicate size.Width '─' @ ['┘']) |> List.toArray)
             System.String.Join(System.Environment.NewLine, header :: lines @ [footer])
 
-    let clip rect (graphics:Graphics) = 
-        if rect.Point = Point.zero && graphics.Size.Width <= rect.Size.Width && graphics.Size.Height <= rect.Size.Height then
-            graphics
-        else
-            let copyRect = Rect.getIntersection (Rect.fromSize graphics.Size) rect
-            let newGraphics = Graphics(graphics.AddressingMode, graphics.Endian, copyRect.Size)
-            for i = copyRect.Point.X to copyRect.Point.X + copyRect.Size.Width - 1 do   
-                for j = copyRect.Point.Y to copyRect.Point.Y + copyRect.Size.Height - 1 do 
-                    if (graphics.GetPixel i j = 1uy) then
-                        newGraphics.SetPixel (i - copyRect.Point.X) (j - copyRect.Point.Y)
-            newGraphics
-
     let copyTo targetRect (targetGraphics:Graphics) sourceRect (sourceGraphics:Graphics) = 
         let copySourceRect = Rect.getIntersection (Rect.fromSize sourceGraphics.Size) sourceRect
         let copyTargetRect = Rect.getIntersection (Rect.fromSize targetGraphics.Size) targetRect
@@ -107,3 +95,9 @@ module Graphics =
             for j = 0 to copySize.Height - 1 do 
                 if (sourceGraphics.GetPixel (i + copySourceRect.Point.X) (j + copySourceRect.Point.Y) = 1uy) then
                     targetGraphics.SetPixel (i + copyTargetRect.Point.X) (j + copyTargetRect.Point.Y)
+
+    let clip rect (graphics:Graphics) = 
+        let copyRect = Rect.getIntersection (Rect.fromSize graphics.Size) rect
+        let newGraphics = Graphics(graphics.AddressingMode, graphics.Endian, copyRect.Size)
+        copyTo copyRect newGraphics rect graphics
+        newGraphics

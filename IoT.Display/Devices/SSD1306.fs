@@ -189,12 +189,11 @@ type SSD1306(device:IDevice) as this =
         getCommandBytes command
         |> device.Write
 
-    let ensureModeAndEndianess (g:Graphics) = 
-        let rect = Rect.fromSize displayRect.Size
-        if g.AddressingMode = addressingMode && g.Endian = endianness 
-        then 
-            Graphics.clip rect g
+    let ensureModeAndEndianess (g:Graphics) =         
+        if g.AddressingMode = addressingMode && g.Endian = endianness && g.Size.Width = displayRect.Size.Width && g.Size.Height = displayRect.Size.Height then
+            g
         else
+            let rect = Rect.fromSize displayRect.Size
             let newGraphics = Graphics.createFromDisplay this
             Graphics.copyTo rect newGraphics rect g
             newGraphics
