@@ -47,6 +47,9 @@ module Size =
 
 [<AutoOpen>]
 module Rect =
+    let empty = 
+        {Point = zero; Size = Size.empty}
+
     let fromSize s = 
         {Point = zero; Size = s}
 

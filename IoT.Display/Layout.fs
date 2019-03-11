@@ -11,9 +11,12 @@ module Layout =
         inherit IBaseAttribute
     type IBorderAttribute =
         inherit IBaseAttribute
+    type ITextAttribute = 
+        inherit IBaseAttribute
     type IAttribute = 
         inherit IStackPanelAttribute
         inherit IBorderAttribute
+        inherit ITextAttribute
 
     type HorizontalAlignment = 
         | Left
@@ -52,6 +55,15 @@ module Layout =
         | Orientation of StackPanelOrientation
         interface IStackPanelAttribute
 
+    type TextWrapping = 
+        | Word
+        | Char
+        | None
+
+    type TextAttribute = 
+        | TextWrapping of TextWrapping
+        interface ITextAttribute
+
     type BorderAttribute = 
         | Thickness of Thickness
         interface IBorderAttribute
@@ -60,7 +72,7 @@ module Layout =
         | StackPanel of (IStackPanelAttribute list * LayoutElement list)
         | DockPanel of (IAttribute list * LayoutElement list)
         | Border of (IBorderAttribute list * LayoutElement)
-        | Text of (IAttribute list * string)
+        | Text of (ITextAttribute list * string)
         | Image of (IAttribute list * Graphics)
         | Canvas of (IAttribute list * Visual list)
 
@@ -75,7 +87,7 @@ module Layout =
     let inline border (attributes:IBorderAttribute list) child =
         Border (attributes, child)
 
-    let inline text (attributes:IAttribute list) str =
+    let inline text (attributes:ITextAttribute list) str =
         Text (attributes, str)
 
     let inline image (attributes:IAttribute list) buffer =
@@ -84,24 +96,81 @@ module Layout =
     let inline canvas (attributes:IAttribute list) children =
         Canvas (attributes, children)
 
-    let private measureChar c = 
+    let measureChar c = 
         let data = FontClass.getCharData c 
         let len = data |> Array.length 
-        len / 2
+        {Width = len / 2; Height = FontClass.fontHeight}
 
-    let private measureString (str:string) = 
+    let measureLine (str:string) = 
         str
-        |> Seq.sumBy measureChar
-        |> (fun p -> {Width = p + Math.Max(str.Length - 1, 0); Height = FontClass.fontHeight})
+        |> Seq.fold (fun m c -> let charSize = measureChar c in {Width = m.Width + charSize.Width; Height = Math.Max(m.Height, charSize.Height)}) Size.empty
+        |> (fun m -> {m with Width = m.Width + if str.Length > 1 then (str.Length - 1) * FontClass.charSpacing else 0})
+
+    let private getLineLengthCore<'T> spacingWidth spacingChars measureLength maxLineWidth (getLength: 'T -> int) (items: 'T seq) =
+        let acc (x, numberOfChars, resultLengths) i = 
+            let charLength = measureLength i
+            if (x + charLength > maxLineWidth) then 
+                // Line break
+                (charLength, getLength i, numberOfChars :: resultLengths)
+            else 
+                (x + charLength + spacingWidth, numberOfChars + getLength i + (if x = 0 then 0 else spacingChars), resultLengths)
+        items
+        |> Seq.fold acc (0, 0, [])
+        |> (fun (_, l, ls) -> if l > 0 then l :: ls else ls)
+        |> Seq.rev
+
+    let private getTextLines textWrapping maxLineWidth (str:string) =
+        let splitToWords inputString =
+            let acc (hasChar, word, words) c = 
+                match (hasChar, c) with
+                | (false, ' ') -> (false, word + (c.ToString()), words)
+                | (true, ' ') -> (false, "", word :: words)
+                | _ -> (true, word + (c.ToString()), words)
+            
+            inputString
+            |> Seq.fold acc (false, "", []) 
+            |> (fun (hasChar, word, words) -> if hasChar && word.Length > 0 then word :: words else words) 
+            |> Seq.toArray 
+            |> Array.rev
+
+        let splitByLength spacingChars (inputString:string) lens = 
+            let acc (index, list) length =
+                let s = inputString.Substring(index, length)
+                (index + length + spacingChars, s :: list)
+            lens
+            |> Seq.fold acc (0, [])
+            |> snd
+            |> List.rev
+
+        match textWrapping with 
+        | TextWrapping.None -> [str]
+        | TextWrapping.Char ->
+            str
+            |> getLineLengthCore FontClass.charSpacing 0 (measureChar >> (fun p -> p.Width)) maxLineWidth (fun _ -> 1)
+            |> splitByLength 0 str
+        | TextWrapping.Word ->
+            str
+            |> splitToWords
+            |> getLineLengthCore FontClass.wordSpacing 1 (measureLine >> (fun p -> p.Width)) maxLineWidth (fun s -> s.Length)
+            |> splitByLength 1 str
+
+    let rec private measureString textWrapping (maxSize:Size) (str:string) : Size = 
+        let acc (size:Size) string = 
+            let len = measureLine string
+            {Width = Math.Max(size.Width, len.Width); Height = size.Height + (if size = Size.empty then 0 else FontClass.lineSpacing) + len.Height}
+        str
+        |> getTextLines textWrapping maxSize.Width
+        |> List.fold acc Size.empty
+        |> applyBounds maxSize
 
     let private tryCastAttribute<'T when 'T :> IBaseAttribute> (attr:IBaseAttribute) =
         match attr with
         | :? 'T as a -> Some a
-        | _ -> None
+        | _ -> Option.None
 
     let private getGenericProperties element = 
         let createProps attributes =
-            let emptyProps = {Width=None; Height=None; Margin = emptyThickness; Padding = emptyThickness; HorizontalAlignment=HorizontalAlignment.Stretch; VerticalAlignment=Stretch; Dock = Left}
+            let emptyProps = {Width=Option.None; Height=Option.None; Margin = emptyThickness; Padding = emptyThickness; HorizontalAlignment=HorizontalAlignment.Stretch; VerticalAlignment=Stretch; Dock = Left}
             let acc (s:Properties) (i:IAttribute) =
                 match i with
                 | :? Attribute as a -> 
@@ -118,7 +187,7 @@ module Layout =
             |> List.fold acc emptyProps
 
         match element with
-        | Text (props, _) -> props |> createProps
+        | Text (props, _) -> props |> List.choose tryCastAttribute<IAttribute> |> createProps
         | StackPanel (props, _) -> props |> List.choose tryCastAttribute<IAttribute> |> createProps
         | Image (props, _) -> props |> createProps
         | DockPanel (props, _) -> props |> createProps
@@ -134,7 +203,7 @@ module Layout =
             | _ -> orientation
 
         attrs 
-        |> List.fold acc None
+        |> List.fold acc Option.None
         |> Option.defaultValue StackPanelOrientation.Vertical
 
     let private getBorderThickness attrs = 
@@ -146,12 +215,26 @@ module Layout =
             | _ -> thickness
 
         attrs 
-        |> List.fold acc None
+        |> List.fold acc Option.None
         |> Option.defaultValue Thickness.emptyThickness
+
+    let private getTextWrapping attrs = 
+        let acc textWrapping (attribute:ITextAttribute) = 
+            match attribute with 
+            | :? TextAttribute as spa ->
+                match spa with 
+                | TextWrapping t -> Some t
+            | _ -> textWrapping
+
+        attrs 
+        |> List.fold acc Option.None
+        |> Option.defaultValue TextWrapping.None
 
     let rec measure (maxSize:Size) (element:LayoutElement) : Size = 
         let measureCore = function
-            | Text (_, text) -> measureString text
+            | Text (attrs, text) -> 
+                let textWrapping = getTextWrapping attrs
+                measureString textWrapping maxSize text
             | Image (_, b) -> b.Size
             | StackPanel (attrs, childs) ->
                 let measureChild (size : Size, cons) child = 
@@ -201,24 +284,26 @@ module Layout =
         {Width = props.Width |> Option.defaultWith (fun () -> coreSize.Value.Width); Height = props.Height |> Option.defaultWith (fun () -> coreSize.Value.Height)} 
         |> (+) (props.Margin |> Thickness.toSize) 
         |> applyBounds maxSize
-    
-    let private renderGraphics (targetGraphics:Graphics) rect origin (graphics:Graphics) =
-        let size = Size.min rect.Size graphics.Size
-        if isPointWithin rect origin then
-            for iy = 0 to size.Height - 1 do
-                for ix = 0 to size.Width - 1 do
-                    if graphics.GetPixel ix iy = 1uy then
-                        let p = {X = ix + origin.X; Y = iy + origin.Y}
-                        if (isPointWithin rect p) then
-                            targetGraphics.SetPixel p.X p.Y
 
-    let private renderString graphics (rect:Rect) str =
-        let acc origin c =
-            let g = FontClass.getCharGraphics c
-            renderGraphics graphics rect origin g
-            {origin with X = origin.X + g.Size.Width + 1}
+    let private renderString textWrapping (rect:Rect) graphics (str:string) = 
+        let renderChar targetGraphics maxRext cursor c = 
+            let charGraphics = FontClass.getCharGraphics c
+            let targetRect = Rect.getIntersection {Point = cursor; Size = charGraphics.Size} maxRext
+            let charRect = Rect.fromSize charGraphics.Size
+            copyTo targetRect targetGraphics charRect charGraphics
+            {cursor with X = cursor.X + charGraphics.Size.Width + FontClass.charSpacing}
+
+        let renderLine lineStartCursor string = 
+            string
+            |> Seq.fold (renderChar graphics rect) lineStartCursor
+            |> ignore
+            {lineStartCursor with Y = lineStartCursor.Y + FontClass.fontHeight + FontClass.lineSpacing}
         
-        str |> Seq.fold acc rect.Point |> ignore
+        str
+        |> getTextLines textWrapping rect.Size.Width
+        |> List.fold renderLine rect.Point
+        |> ignore
+        
 
     let rec private render (graphics:Graphics) (area:Rect) element =
         let getRenderRect (r:Rect) (desiredSize:Size) hAlignment vAlignment =
@@ -244,7 +329,9 @@ module Layout =
         let rect = getRenderRect marginArea desiredSize props.HorizontalAlignment props.VerticalAlignment
         
         match element with
-            | Text (_, s) -> s |> renderString graphics rect
+            | Text (attrs, s) -> 
+                let textWrapping = getTextWrapping attrs
+                s |> renderString textWrapping rect graphics
             | StackPanel (attrs, childs) -> 
                 let paddingArea = shrink rect props.Padding
                 let orientation = getStackPanelOrientation attrs
@@ -262,7 +349,7 @@ module Layout =
                     remaining
                 childs |> List.fold folder paddingArea |> ignore
             | Image (_, g) -> 
-                renderGraphics graphics rect rect.Point g
+                copyTo rect graphics (Rect.fromSize g.Size) g
             | DockPanel (_, childs) ->
                 let paddingArea = shrink rect props.Padding
                 let folder remainingRect c = 

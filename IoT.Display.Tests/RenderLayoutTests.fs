@@ -552,6 +552,83 @@ module RenderLayoutTests =
 └───────────────┘"""
 
     [<Test>]
+    let ``Render text wrap word test`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 22; Height = 30})
+
+        text [TextWrapping Word] "111 111"
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌──────────────────────┐
+│  ▄   ▄   ▄           │
+│▀▀█ ▀▀█ ▀▀█           │
+│  █   █   █           │
+│  █   █   █           │
+│  █   █   █           │
+│  ▀   ▀   ▀           │
+│                      │
+│                      │
+│  ▄   ▄   ▄           │
+│▀▀█ ▀▀█ ▀▀█           │
+│  █   █   █           │
+│  █   █   █           │
+│  █   █   █           │
+│  ▀   ▀   ▀           │
+│                      │
+└──────────────────────┘"""
+
+    [<Test>]
+    let ``Render text wrap char test`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 12; Height = 30})
+
+        text [TextWrapping Char] "123"
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────────┐
+│  ▄  ▄▄▄    │
+│▀▀█ █   █   │
+│  █    ▄▀   │
+│  █  ▄▀     │
+│  █ █       │
+│  ▀ ▀▀▀▀▀   │
+│            │
+│            │
+│ ▄▄▄        │
+│▀   █       │
+│  ▄▄▀       │
+│    █       │
+│▄   █       │
+│ ▀▀▀        │
+│            │
+└────────────┘"""
+
+    [<Test>]
+    let ``Render text wrap char outside of bounds test`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 12; Height = 22})
+
+        text [TextWrapping Char] "123"
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────────┐
+│  ▄  ▄▄▄    │
+│▀▀█ █   █   │
+│  █    ▄▀   │
+│  █  ▄▀     │
+│  █ █       │
+│  ▀ ▀▀▀▀▀   │
+│            │
+│            │
+│ ▄▄▄        │
+│▀   █       │
+│  ▄▄▀       │
+└────────────┘"""
+
+    [<Test>]
     let ``Render "123" string out of bounds test`` () =
         let g = createGraphics()
 

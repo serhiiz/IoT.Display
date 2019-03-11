@@ -63,7 +63,64 @@ module MeasureLayoutTests =
     [<Test>]
     let ``Measure string test`` () =
         let layout = text [] "str8"
-        measure maxSize layout =! { Width = 5+1+3+1+3+1+5; Height = FontClass.fontHeight }
+        measure maxSize layout =! { Width = 5+FontClass.charSpacing+3+FontClass.charSpacing+3+FontClass.charSpacing+5; Height = FontClass.fontHeight }
+
+    [<Test>]
+    let ``Measure char wrapping test`` () =
+        let layout = text [TextWrapping Char] "aaa"
+        measure {Width = 10; Height = 64} layout =! { Width = 7; Height = 3 * FontClass.fontHeight + 2 * FontClass.lineSpacing }
+
+    [<Test>]
+    let ``Measure char wrapping widest string test`` () =
+        let layout = text [TextWrapping Char] "a!"
+        measure {Width = 8; Height = 64} layout =! { Width = 7; Height = 2 * FontClass.fontHeight + FontClass.lineSpacing }
+
+    [<Test>]
+    let ``Measure too long string no wrapping test`` () =
+        let layout = text [] "aaa"
+        measure {Width = 8; Height = 64} layout =! { Width = 8; Height = FontClass.fontHeight }
+
+    [<Test>]
+    let ``Measure word wrapping first line test`` () =
+        let layout = text [TextWrapping Word] "aaa aaa"
+        measure {Width = 25; Height = 64} layout =! { Width = 7 * 3 + 2 * FontClass.charSpacing; Height = 2 * FontClass.fontHeight + FontClass.lineSpacing }
+
+    [<Test>]
+    let ``Measure word wrapping second line test`` () =
+        let layout = text [TextWrapping Word] "a aaa aaa"
+        measure {Width = 25; Height = 64} layout =! { Width = 7 * 3 + 2 * FontClass.charSpacing; Height = 3 * FontClass.fontHeight + 2 * FontClass.lineSpacing }
+
+    [<Test>]
+    let ``Measure too long string word wrapping test`` () =
+        let layout = text [TextWrapping Word] "a aaa aaa"
+        measure {Width = 25; Height = 25} layout =! { Width = 7 * 3 + 2 * FontClass.charSpacing; Height = 25 }
+
+    [<Test>]
+    let ``Measure too long string char wrapping test`` () =
+        let layout = text [TextWrapping Word] "aaa aaa"
+        measure {Width = 25; Height = 25} layout =! { Width = 7 * 3 + 2 * FontClass.charSpacing; Height = 25 }
+
+    [<Test>]
+    let ``Measure string with/without word wrapping is same test`` () =
+        let layout1 = text [] "aaa aaa"
+        let layout2 = text [TextWrapping Word] "aaa aaa"
+        measure maxSize layout1 =! measure maxSize layout2
+
+    [<Test>]
+    let ``Measure string with/without char wrapping is same test`` () =
+        let layout1 = text [] "aaa aaa"
+        let layout2 = text [TextWrapping Char] "aaa aaa"
+        measure maxSize layout1 =! measure maxSize layout2
+
+    [<Test>]
+    let ``Measure string traling line space doesn't count test`` () =
+        let layout = text [TextWrapping Word] "a a "
+        measure {Width = 13; Height = 64} layout =! { Width = 7; Height = 2 * FontClass.fontHeight + FontClass.lineSpacing }
+
+    [<Test>]
+    let ``Measure string leading space is honored test`` () =
+        let layout = text [TextWrapping Word] "  a"
+        measure maxSize layout =! { Width = 4 + 4 + 7 + 2 * FontClass.charSpacing; Height = FontClass.fontHeight}
 
     [<Test>]
     let ``Measure char test`` () =

@@ -4,6 +4,10 @@ open IoT.Display.Graphics
 
 module FontClass =
     let fontHeight = 14
+    let charSpacing = 1
+    let lineSpacing = 2
+    let wordSpacing = 6
+
     let getCharData char = 
         match char with
         | ' ' -> [|0x00uy;  0x00uy;  0x00uy;  0x00uy;  0x00uy;  0x00uy;  0x00uy;  0x00uy|]
