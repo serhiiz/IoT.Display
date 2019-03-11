@@ -99,5 +99,5 @@ module Graphics =
     let clip rect (graphics:Graphics) = 
         let copyRect = Rect.getIntersection (Rect.fromSize graphics.Size) rect
         let newGraphics = Graphics(graphics.AddressingMode, graphics.Endian, copyRect.Size)
-        copyTo copyRect newGraphics rect graphics
+        copyTo (Rect.fromSize copyRect.Size) newGraphics rect graphics
         newGraphics
