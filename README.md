@@ -90,7 +90,7 @@ List.init 21 (fun _ -> r.Next(30) + 2)
 - Add Text Direction
 - Add Font Size
 - ~Add Clip to Graphics~
-- Add text wrapping
+- ~Add text wrapping~
 - ~Support on mono/.net core~
 - Support for SH1106
 
