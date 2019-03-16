@@ -552,6 +552,82 @@ module RenderLayoutTests =
 └───────────────┘"""
 
     [<Test>]
+    let ``Render "1" aligned left test`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 15; Height = 14})
+
+        text [TextAlignment HorizontalAlignment.Left; Width 15] "1"
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌───────────────┐
+│  ▄            │
+│▀▀█            │
+│  █            │
+│  █            │
+│  █            │
+│  ▀            │
+│               │
+└───────────────┘"""
+
+    [<Test>]
+    let ``Render "1" aligned right test`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 15; Height = 14})
+
+        text [TextAlignment HorizontalAlignment.Right; Width 15] "1"
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌───────────────┐
+│              ▄│
+│            ▀▀█│
+│              █│
+│              █│
+│              █│
+│              ▀│
+│               │
+└───────────────┘"""
+
+    [<Test>]
+    let ``Render "1" aligned center test`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 15; Height = 14})
+
+        text [TextAlignment HorizontalAlignment.Center; Width 15] "1"
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌───────────────┐
+│        ▄      │
+│      ▀▀█      │
+│        █      │
+│        █      │
+│        █      │
+│        ▀      │
+│               │
+└───────────────┘"""
+
+    [<Test>]
+    let ``Render "13" aligned stretch test`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 15; Height = 14})
+
+        text [TextAlignment HorizontalAlignment.Stretch; Width 15] "13"
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌───────────────┐
+│  ▄        ▄▄▄ │
+│▀▀█       ▀   █│
+│  █         ▄▄▀│
+│  █           █│
+│  █       ▄   █│
+│  ▀        ▀▀▀ │
+│               │
+└───────────────┘"""
+
+    [<Test>]
     let ``Render text wrap word test`` () =
         let g = Graphics(ColumnMajor, Little, {Size.Width = 22; Height = 30})
 

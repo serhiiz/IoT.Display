@@ -66,6 +66,7 @@ module Layout =
 
     type TextAttribute = 
         | TextWrapping of TextWrapping
+        | TextAlignment of HorizontalAlignment
         interface ITextAttribute
 
     type BorderAttribute = 
@@ -92,6 +93,11 @@ module Layout =
         MaxWidth : int option
         MinHeight : int option
         MaxHeight : int option
+    }
+
+    type private TextProperties = {
+        Wrapping: TextWrapping
+        Alignment: HorizontalAlignment
     }
 
     let inline stack (attributes:IStackPanelAttribute list) children =
@@ -250,23 +256,27 @@ module Layout =
         |> List.fold acc Option.None
         |> Option.defaultValue Thickness.emptyThickness
 
-    let private getTextWrapping attrs = 
-        let acc textWrapping (attribute:ITextAttribute) = 
+    let private getTextProperties attrs = 
+        let empty = {
+            Wrapping = TextWrapping.None
+            Alignment = HorizontalAlignment.Left
+        }
+        let acc props (attribute:ITextAttribute) = 
             match attribute with 
             | :? TextAttribute as spa ->
                 match spa with 
-                | TextWrapping t -> Some t
-            | _ -> textWrapping
+                | TextWrapping t -> {props with Wrapping = t}
+                | TextAlignment a -> {props with Alignment = a}
+            | _ -> props
 
         attrs 
-        |> List.fold acc Option.None
-        |> Option.defaultValue TextWrapping.None
+        |> List.fold acc empty
 
     let rec measure (maxSize:Size) (element:LayoutElement) : Size = 
         let measureCore = function
             | Text (attrs, text) -> 
-                let textWrapping = getTextWrapping attrs
-                measureString textWrapping maxSize text
+                let textProps = getTextProperties attrs
+                measureString textProps.Wrapping maxSize text
             | Image (_, b) -> b.Size
             | StackPanel (attrs, childs) ->
                 let measureChild (size : Size, cons) child = 
@@ -326,22 +336,29 @@ module Layout =
         |> applyMinMaxSize props
         |> applyBounds maxSize
 
-    let private renderString textWrapping (rect:Rect) graphics (str:string) = 
-        let renderChar targetGraphics maxRext cursor c = 
+    let private renderString textProperties (rect:Rect) graphics (str:string) = 
+        let renderChar targetGraphics maxRext charSpacing cursor c = 
             let charGraphics = FontClass.getCharGraphics c
             let targetRect = Rect.getIntersection {Point = cursor; Size = charGraphics.Size} maxRext
             let charRect = Rect.fromSize charGraphics.Size
             copyTo targetRect targetGraphics charRect charGraphics
-            {cursor with X = cursor.X + charGraphics.Size.Width + FontClass.charSpacing}
+            {cursor with X = cursor.X + charGraphics.Size.Width + charSpacing}
 
         let renderLine lineStartCursor string = 
+            let strLength = lazy measureLine string
+            let (cursorX, spacing) = 
+                match textProperties.Alignment with 
+                | HorizontalAlignment.Right -> lineStartCursor.X + rect.Size.Width - strLength.Value.Width, FontClass.charSpacing
+                | HorizontalAlignment.Center -> lineStartCursor.X + (rect.Size.Width - strLength.Value.Width) / 2, FontClass.charSpacing
+                | HorizontalAlignment.Stretch when string.Length > 1 -> lineStartCursor.X, ((rect.Size.Width - strLength.Value.Width) / (string.Length - 1)) + FontClass.charSpacing
+                | _ -> lineStartCursor.X, FontClass.charSpacing
             string
-            |> Seq.fold (renderChar graphics rect) lineStartCursor
+            |> Seq.fold (renderChar graphics rect spacing) {lineStartCursor with X = cursorX}
             |> ignore
             {lineStartCursor with Y = lineStartCursor.Y + FontClass.fontHeight + FontClass.lineSpacing}
         
         str
-        |> getTextLines textWrapping rect.Size.Width
+        |> getTextLines textProperties.Wrapping rect.Size.Width
         |> List.fold renderLine rect.Point
         |> ignore
         
@@ -371,8 +388,8 @@ module Layout =
         
         match element with
             | Text (attrs, s) -> 
-                let textWrapping = getTextWrapping attrs
-                s |> renderString textWrapping rect graphics
+                let textProps = getTextProperties attrs
+                s |> renderString textProps rect graphics
             | StackPanel (attrs, childs) -> 
                 let paddingArea = shrink rect props.Padding
                 let orientation = getStackPanelOrientation attrs
