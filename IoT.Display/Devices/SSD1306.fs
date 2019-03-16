@@ -171,6 +171,7 @@ type SSD1306(device:IDevice) as this =
     let mutable displayRect = { Point = Point.zero; Size = {Width = 128; Height = 64} }
     let endianness = Little
     let mutable addressingMode = AddressingMode.Page
+    let mutable preprocessor = id
 
     let sendCommand command =
         match command with 
@@ -180,10 +181,12 @@ type SSD1306(device:IDevice) as this =
                               | Horizontal -> Page
         | SetColumnAddress (startAddress, endAddress) ->
             displayRect <- {Point = { X = startAddress |> int; Y = displayRect.Point.Y}; Size = {Width = endAddress - startAddress |> int |> (+) 1; Height = displayRect.Size.Height}}
+            preprocessor <- id
         | SetPageAddress (startPage, endPage) -> 
             let minY = getPageCode startPage |> int |> (*) BitsInByte
             let maxY = (getPageCode endPage |> int |> (+) 1 |> (*) BitsInByte) - 1
             displayRect <- {Point = { X = displayRect.Point.X; Y = minY }; Size = {Width = displayRect.Size.Width; Height = maxY - minY + 1}}
+            preprocessor <- id
         | _ -> ()
 
         getCommandBytes command
@@ -243,8 +246,11 @@ module SSD1306 =
             SetPageAddress (Page2, Page7)
         ]
 
-    let setup128x32 = 
-        [
-            SetColumnAddress (0uy, 127uy)
-            SetPageAddress (Page4, Page7)
-        ]
+    let doubleHorizontalLines (g:Graphics) =
+        let newGraphics = Graphics(g.AddressingMode, g.Endian, {g.Size with Height = g.Size.Height * 2})
+        for x = 0 to g.Size.Width - 1 do
+            for y = 0 to g.Size.Height - 1 do
+                if (g.GetPixel x y = 1uy) then
+                    newGraphics.SetPixel x (y * 2)
+                    newGraphics.SetPixel x (y * 2 + 1)
+        newGraphics

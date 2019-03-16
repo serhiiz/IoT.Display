@@ -20,6 +20,7 @@
     <Compile Include="MeasureLayoutTests.fs" />
     <Compile Include="RenderPrimitivesTests.fs" />
     <Compile Include="RenderLayoutTests.fs" />
+    <Compile Include="Devices\SSD1306Tests.fs" />
   </ItemGroup>
 
   <ItemGroup>
