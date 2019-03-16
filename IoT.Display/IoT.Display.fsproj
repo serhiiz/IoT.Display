@@ -14,7 +14,7 @@
     <WarningsAsErrors />
     <Version>1.0.0-alpha4</Version>
     <AssemblyVersion>1.0.0.4</AssemblyVersion>
-    <FileVersion>1.0.0.3</FileVersion>
+    <FileVersion>1.0.0.4</FileVersion>
     <PackageReleaseNotes>Added canvas, text wrapping, text alignment, min/max widht/height;
 Updated base abstractions;
 Completed command set for SSD1306;
