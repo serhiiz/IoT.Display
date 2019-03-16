@@ -12,12 +12,13 @@
     <PackageTags>display IoT SSD1306 F# FSharp dock OLED</PackageTags>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <Version>1.0.0-alpha3</Version>
-    <AssemblyVersion>1.0.0.3</AssemblyVersion>
+    <Version>1.0.0-alpha4</Version>
+    <AssemblyVersion>1.0.0.4</AssemblyVersion>
     <FileVersion>1.0.0.3</FileVersion>
-    <PackageReleaseNotes>Added Border layout element;
-Added Quadratic Bezier primitive;
-Restricted attribute usage on layout elements.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added canvas, text wrapping, text alignment, min/max widht/height;
+Updated base abstractions;
+Completed command set for SSD1306;
+Bug fixes.</PackageReleaseNotes>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
