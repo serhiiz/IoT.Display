@@ -45,6 +45,10 @@ module Layout =
         | HorizontalAlignment of HorizontalAlignment
         | VerticalAlignment of VerticalAlignment
         | Dock of Dock
+        | MinWidth of int
+        | MaxWidth of int
+        | MinHeight of int
+        | MaxHeight of int
         interface IAttribute
 
     type StackPanelOrientation = 
@@ -76,7 +80,19 @@ module Layout =
         | Image of (IAttribute list * Graphics)
         | Canvas of (IAttribute list * Visual list)
 
-    type private Properties = { Width: int option; Height: int option; Margin: Thickness; Padding: Thickness; HorizontalAlignment: HorizontalAlignment; VerticalAlignment: VerticalAlignment; Dock: Dock}
+    type private Properties = {
+        Width: int option; 
+        Height: int option; 
+        Margin: Thickness; 
+        Padding: Thickness; 
+        HorizontalAlignment: HorizontalAlignment; 
+        VerticalAlignment: VerticalAlignment; 
+        Dock: Dock; 
+        MinWidth : int option
+        MaxWidth : int option
+        MinHeight : int option
+        MaxHeight : int option
+    }
 
     let inline stack (attributes:IStackPanelAttribute list) children =
         StackPanel (attributes, children)
@@ -170,7 +186,19 @@ module Layout =
 
     let private getGenericProperties element = 
         let createProps attributes =
-            let emptyProps = {Width=Option.None; Height=Option.None; Margin = emptyThickness; Padding = emptyThickness; HorizontalAlignment=HorizontalAlignment.Stretch; VerticalAlignment=Stretch; Dock = Left}
+            let emptyProps = {
+                Width = Option.None 
+                Height = Option.None 
+                Margin = emptyThickness 
+                Padding = emptyThickness 
+                HorizontalAlignment = HorizontalAlignment.Stretch 
+                VerticalAlignment = VerticalAlignment.Stretch 
+                Dock = Left
+                MinWidth = Option.None
+                MaxWidth = Option.None
+                MinHeight = Option.None
+                MaxHeight = Option.None
+            }
             let acc (s:Properties) (i:IAttribute) =
                 match i with
                 | :? Attribute as a -> 
@@ -182,6 +210,10 @@ module Layout =
                     | HorizontalAlignment a -> {s with HorizontalAlignment = a}
                     | VerticalAlignment a -> {s with VerticalAlignment = a}
                     | Dock d -> {s with Dock = d}
+                    | MinWidth mw -> {s with MinWidth = Some mw}
+                    | MaxWidth mw -> {s with MaxWidth = Some mw}
+                    | MinHeight mh -> {s with MinHeight = Some mh}
+                    | MaxHeight mh -> {s with MaxHeight = Some mh}
                 | _ -> s
             attributes
             |> List.fold acc emptyProps
@@ -281,8 +313,17 @@ module Layout =
         let props = element |> getGenericProperties
         let coreSize = lazy (element |> measureCore |> (+) (props.Padding |> Thickness.toSize))
 
+        let applyMinMaxSize props (s:Size) =
+            let applyOption o f v =
+                o |> Option.map (fun ov -> f(v,ov)) |> Option.defaultValue v
+            { 
+                Width = s.Width |> applyOption props.MinWidth Math.Max |> applyOption props.MaxWidth Math.Min
+                Height = s.Height |> applyOption props.MinHeight Math.Max |> applyOption props.MaxHeight Math.Min
+            }
+            
         {Width = props.Width |> Option.defaultWith (fun () -> coreSize.Value.Width); Height = props.Height |> Option.defaultWith (fun () -> coreSize.Value.Height)} 
         |> (+) (props.Margin |> Thickness.toSize) 
+        |> applyMinMaxSize props
         |> applyBounds maxSize
 
     let private renderString textWrapping (rect:Rect) graphics (str:string) = 

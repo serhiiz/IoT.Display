@@ -762,4 +762,75 @@ module RenderLayoutTests =
 │        │
 │        │
 └────────┘"""
-    
+
+    [<Test>]
+    let ``Border with min width test`` () =
+        let g = createGraphics()
+
+        border [Thickness (thicknessSame 1); MinWidth 4; Height 6; HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center] (
+            canvas [Width 0; Height 0] []
+        )
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│  ▄▄▄▄  │
+│  █  █  │
+│  █  █  │
+│  ▀▀▀▀  │
+└────────┘"""
+
+    [<Test>]
+    let ``Border with min height test`` () =
+        let g = createGraphics()
+
+        border [Thickness (thicknessSame 1); MinHeight 4; Width 6; HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center] (
+            canvas [Width 0; Height 0] []
+        )
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│        │
+│ █▀▀▀▀█ │
+│ █▄▄▄▄█ │
+│        │
+└────────┘"""
+
+    [<Test>]
+    let ``Border with max width test`` () =
+        let g = createGraphics()
+
+        border [Thickness (thicknessSame 1); MaxWidth 4; Height 6; HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center] (
+            canvas [Width 10; Height 10] []
+        )
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│  ▄▄▄▄  │
+│  █  █  │
+│  █  █  │
+│  ▀▀▀▀  │
+└────────┘"""
+
+    [<Test>]
+    let ``Border with max height test`` () =
+        let g = createGraphics()
+
+        border [Thickness (thicknessSame 1); MaxHeight 4; Width 6; HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center] (
+            canvas [Width 10; Height 10] []
+        )
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│        │
+│ █▀▀▀▀█ │
+│ █▄▄▄▄█ │
+│        │
+└────────┘"""    
