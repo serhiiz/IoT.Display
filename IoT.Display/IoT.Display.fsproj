@@ -18,6 +18,8 @@
     <PackageReleaseNotes>Added Border layout element;
 Added Quadratic Bezier primitive;
 Restricted attribute usage on layout elements.</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
