@@ -387,7 +387,7 @@ module Layout =
                 let childRect = shrink rect (bt + props.Padding)
                 render graphics childRect child
             | Canvas (_, children) ->
-                let g = Graphics(graphics.AddressingMode, graphics.Endian, rect.Size)
+                let g = Graphics(graphics.AddressingMode, graphics.Endianness, rect.Size)
                 children |> List.iter (renderVisualToGraphics g)
                 let sourceRect = Rect.fromSize graphics.Size
                 copyTo rect graphics sourceRect g

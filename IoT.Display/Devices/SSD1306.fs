@@ -192,8 +192,8 @@ type SSD1306(device:IDevice) as this =
         getCommandBytes command
         |> device.Write
 
-    let ensureModeAndEndianess (g:Graphics) =         
-        if g.AddressingMode = addressingMode && g.Endian = endianness && g.Size.Width = displayRect.Size.Width && g.Size.Height = displayRect.Size.Height then
+    let ensureModeAndEndianness (g:Graphics) =         
+        if g.AddressingMode = addressingMode && g.Endianness = endianness && g.Size.Width = displayRect.Size.Width && g.Size.Height = displayRect.Size.Height then
             g
         else
             let rect = Rect.fromSize displayRect.Size
@@ -203,7 +203,7 @@ type SSD1306(device:IDevice) as this =
 
     let display (g:Graphics) = 
         g 
-        |> ensureModeAndEndianess 
+        |> ensureModeAndEndianness 
         |> (fun p -> p.GetBuffer()) 
         |> sendData
 
@@ -247,7 +247,7 @@ module SSD1306 =
         ]
 
     let doubleHorizontalLines (g:Graphics) =
-        let newGraphics = Graphics(g.AddressingMode, g.Endian, {g.Size with Height = g.Size.Height * 2})
+        let newGraphics = Graphics(g.AddressingMode, g.Endianness, {g.Size with Height = g.Size.Height * 2})
         for x = 0 to g.Size.Width - 1 do
             for y = 0 to g.Size.Height - 1 do
                 if (g.GetPixel x y = 1uy) then

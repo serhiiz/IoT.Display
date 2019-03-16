@@ -20,14 +20,14 @@ module Graphics =
         | ColumnMajor -> heightBytes * size.Width
         | RowMajor -> widthBytes * size.Height
 
-    type Graphics private(mode, endian, size, buffer, widthBytes, heightBytes) =
+    type Graphics private(mode, endianness, size, buffer, widthBytes, heightBytes) =
         let getByteIndex x y = function
             | Page -> x + (y / BitsInByte) * size.Width
             | ColumnMajor -> x * heightBytes + y / BitsInByte
             | RowMajor -> y * widthBytes + x / BitsInByte
 
-        let getBitIndex x y mode endian = 
-            match (mode, endian) with
+        let getBitIndex x y mode endianness = 
+            match (mode, endianness) with
             | (Page, Little)
             | (ColumnMajor, Little) -> y % BitsInByte
             | (RowMajor, Little) -> x % BitsInByte
@@ -35,37 +35,37 @@ module Graphics =
             | (ColumnMajor, Big) -> BitsInByte - y % BitsInByte - 1
             | (RowMajor, Big) -> BitsInByte - x % BitsInByte - 1
         
-        new(mode, endian, size) = 
+        new(mode, endianness, size) = 
             let widthBytes = size.Width |> pxToBytes
             let heightBytes = size.Height |> pxToBytes
             let bufferLength = getBufferLength widthBytes heightBytes size mode
             let buffer = Array.zeroCreate (bufferLength)
-            Graphics(mode, endian, size, buffer, widthBytes, heightBytes)
+            Graphics(mode, endianness, size, buffer, widthBytes, heightBytes)
         
-        new(mode, endian, size, buffer:byte[]) = 
+        new(mode, endianness, size, buffer:byte[]) = 
             let widthBytes = size.Width |> pxToBytes
             let heightBytes = size.Height |> pxToBytes
             let expectedLength = getBufferLength widthBytes heightBytes size mode
             if (buffer.Length <> expectedLength)
                 then invalidArg "buffer" (sprintf "The length of the array is invalid. Expected %i, but got %i." expectedLength buffer.Length)
-            Graphics(mode, endian, size, buffer, widthBytes, heightBytes)
+            Graphics(mode, endianness, size, buffer, widthBytes, heightBytes)
 
         member __.SetPixel x y =
             let index = getByteIndex x y mode  
-            let pos = getBitIndex x y mode endian
+            let pos = getBitIndex x y mode endianness
             let value = 1uy <<< pos
             buffer.[index] <- buffer.[index] ||| value
 
         member __.GetPixel x y = 
             let index = getByteIndex x y mode  
-            let pos = getBitIndex x y mode endian
+            let pos = getBitIndex x y mode endianness
             let value = 1uy <<< pos
             (buffer.[index] &&& value) >>> pos
 
         member __.GetBuffer() = buffer
         member __.Size with get () = size
         member __.AddressingMode with get() = mode
-        member __.Endian with get () = endian
+        member __.Endianness with get () = endianness
 
         override __.ToString() =
             let lines = 
@@ -98,6 +98,6 @@ module Graphics =
 
     let clip rect (graphics:Graphics) = 
         let copyRect = Rect.getIntersection (Rect.fromSize graphics.Size) rect
-        let newGraphics = Graphics(graphics.AddressingMode, graphics.Endian, copyRect.Size)
+        let newGraphics = Graphics(graphics.AddressingMode, graphics.Endianness, copyRect.Size)
         copyTo (Rect.fromSize copyRect.Size) newGraphics rect graphics
         newGraphics

@@ -17,8 +17,8 @@ module GraphicsTests =
     //│            ▀▄  │
     //│              ▀▄│
     //└────────────────┘    
-    let getAssymetricDiagonalGraphics mode endian = 
-        let g = Graphics(mode, endian, {Size.Width = 16; Height = 16})
+    let getAssymetricDiagonalGraphics mode endianness = 
+        let g = Graphics(mode, endianness, {Size.Width = 16; Height = 16})
         for i = 0 to 15 do
             g.SetPixel i i
         g.SetPixel 15 0
