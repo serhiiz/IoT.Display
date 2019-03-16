@@ -68,13 +68,10 @@ module Primitives =
                     graphics.SetPixel x y
     
     let private writeRectangle (rect:Rect) (graphics:Graphics) =
-        let x = Math.Max(rect.Point.X, 0)
-        let width = Math.Min(rect.Size.Width, graphics.Size.Width)
-        let y = Math.Max(rect.Point.Y, 0)
-        let height = Math.Min(rect.Size.Height, graphics.Size.Height)
+        let r' = Rect.getIntersection rect (Rect.fromSize graphics.Size)
 
-        for i = x to x + width - 1 do
-            for j = y to y + height - 1 do
+        for i = r'.Point.X to r'.Point.X + r'.Size.Width - 1 do
+            for j = r'.Point.Y to r'.Point.Y + r'.Size.Height - 1 do
                 graphics.SetPixel i j
 
     let writePolyline graphics points = 

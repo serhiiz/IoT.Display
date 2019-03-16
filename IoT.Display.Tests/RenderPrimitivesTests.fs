@@ -201,6 +201,22 @@ module RenderPrimitivesTests =
 └────────┘"""
 
     [<Test>]
+    let ``Rectangle outside of boudaries test 2`` () =
+        let g = createGraphics()
+
+        Rectangle {Point = {X = 7; Y = 7}; Size = {Width = 7; Height = 7}}
+        |> renderVisualToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌────────┐
+│        │
+│        │
+│        │
+│       ▄│
+└────────┘"""
+
+    [<Test>]
     [<TestCase(0,1)>]
     [<TestCase(1,0)>]
     let ``Rectangle with zero width/height test`` widht height =
