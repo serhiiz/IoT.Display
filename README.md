@@ -120,6 +120,7 @@ It's also possible to render basic primitives like dot, line, polyline, filled r
 
 ## Display Drivers Support:
 - [SMD1306](https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf)
+
 Here are a few examples of commands.
 
 ```F#
