@@ -29,7 +29,7 @@ open IoT.Display.Layout
 let paramStyle = [HorizontalAlignment HorizontalAlignment.Right; Margin (thickness 0 2 1 2)]
 let valueStyle = [HorizontalAlignment HorizontalAlignment.Left; Margin (thickness 1 2 0 2)]
 
-let g = Graphics(AddressingMode.ColumnMajor, Endian.Little, {Size.Width = 128; Height = 64})
+let g = Graphics(AddressingMode.ColumnMajor, Endianness.Little, {Size.Width = 128; Height = 64})
 
 stack StackPanelOrientation.Horizontal [HorizontalAlignment HorizontalAlignment.Center; Padding (thicknessSame 1)] [
     stack StackPanelOrientation.Vertical [Width 64] [
@@ -53,7 +53,7 @@ open IoT.Display
 open IoT.Display.Graphics
 open IoT.Display.Layout
 
-let g = Graphics(AddressingMode.ColumnMajor, Endian.Little, {Size.Width = 128; Height = 64})
+let g = Graphics(AddressingMode.ColumnMajor, Endianness.Little, {Size.Width = 128; Height = 64})
 
 dock [][
     text [Dock Dock.Bottom; Margin (thicknessSame 1)] "Bottom line"
@@ -74,7 +74,7 @@ open IoT.Display
 open IoT.Display.Graphics
 open IoT.Display.Primitives
 
-let g = Graphics(AddressingMode.ColumnMajor, Endian.Little, {Size.Width = 128; Height = 64})
+let g = Graphics(AddressingMode.ColumnMajor, Endianness.Little, {Size.Width = 128; Height = 64})
 
 let r = Random()
 List.init 21 (fun _ -> r.Next(30) + 2)
