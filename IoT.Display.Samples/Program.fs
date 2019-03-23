@@ -36,19 +36,6 @@ let showWordWrapping () =
     text [TextWrapping Word] "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the"
     |> renderToFile "textWrapping.bmp" size
 
-let showTextWrapping () =
-    dock [] [
-        dock [Width 64; Padding (thicknessSame 2)] [
-            border [Dock Dock.Left; Width 20; Thickness (thicknessSame 1)] ( canvas [] [] )
-            border [Dock Dock.Bottom; Height 20; Thickness (thicknessSame 1)] ( canvas [] [] )
-        ]
-        dock [Width 64; Padding (thicknessSame 2)] [
-            border [Dock Dock.Bottom; Height 20; Thickness (thicknessSame 1)] ( canvas [] [] )
-            border [Dock Dock.Left; Width 20; Thickness (thicknessSame 1)] ( canvas [] [] )
-        ]
-    ]
-    |> renderToFile "dockOrder.bmp" size
-
 let showCanvas () =
     dock [] [
         canvas [Dock Dock.Fill; HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center; Width 21; Height 21] [
@@ -81,20 +68,14 @@ let showStackPanel () =
 
 
 let showDockPanel () = 
-    let paramStyle:ITextAttribute list = [HorizontalAlignment HorizontalAlignment.Right; Margin (thickness 0 2 1 2)]
-    let valueStyle:ITextAttribute list = [HorizontalAlignment HorizontalAlignment.Left; Margin (thickness 1 2 0 2)]
-
-    stack [Orientation StackPanelOrientation.Horizontal; HorizontalAlignment HorizontalAlignment.Center; Padding (thicknessSame 1)] [
-        stack [Orientation StackPanelOrientation.Vertical; Width 64] [
-            text paramStyle "Param1:"
-            text paramStyle "Param2:"
-            text paramStyle "Param3:"
+    dock [] [
+        text [Dock Dock.Bottom; Margin (thicknessSame 1)] "Bottom line"
+        stack [Orientation StackPanelOrientation.Vertical; Dock Dock.Left; Margin (thicknessSame 1)] [
+            text [] "1"
+            text [] "2"
+            text [] "3"
         ]
-        stack [Orientation StackPanelOrientation.Vertical; Width 64] [
-            text valueStyle "Value1"
-            text valueStyle "Value2"
-            text valueStyle "Value3"
-        ]
+        text [Dock Dock.Fill; HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center] "Filled"
     ]
     |> renderToFile "dock.bmp" size
 
