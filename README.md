@@ -9,7 +9,7 @@ The library is supposed to be used in applications where UI is rendered every ti
 - Dock panel
 - Stack panel
 - Border
-- Text
+- Text (wrapping: char, word)
 - Image
 - Canvas
 - Horizontal/Vertical alignment
