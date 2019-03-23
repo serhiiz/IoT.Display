@@ -21,69 +21,103 @@ The library is supposed to be used in applications where UI is rendered every ti
 
 ## Layout examples:
 ### Stack panel
+The stack panel stacks child elements either vertically or horizontally which is controlled by the `Orientation` attribute.
 ```F#
-open IoT.Display
-open IoT.Display.Graphics
-open IoT.Display.Layout
+    let paramStyle:ITextAttribute list = [HorizontalAlignment HorizontalAlignment.Right; Margin (thickness 0 2 1 2)]
+    let valueStyle:ITextAttribute list = [HorizontalAlignment HorizontalAlignment.Left; Margin (thickness 1 2 0 2)]
 
-let paramStyle = [HorizontalAlignment HorizontalAlignment.Right; Margin (thickness 0 2 1 2)]
-let valueStyle = [HorizontalAlignment HorizontalAlignment.Left; Margin (thickness 1 2 0 2)]
-
-let g = Graphics(AddressingMode.ColumnMajor, Endianness.Little, {Size.Width = 128; Height = 64})
-
-stack StackPanelOrientation.Horizontal [HorizontalAlignment HorizontalAlignment.Center; Padding (thicknessSame 1)] [
-    stack StackPanelOrientation.Vertical [Width 64] [
-        text paramStyle "Param1:"
-        text paramStyle "Param2:"
-        text paramStyle "Param3:"
+    stack [Orientation StackPanelOrientation.Horizontal; HorizontalAlignment HorizontalAlignment.Center; Padding (thicknessSame 1)] [
+        stack [Orientation StackPanelOrientation.Vertical; Width 64] [
+            text paramStyle "Param1:"
+            text paramStyle "Param2:"
+            text paramStyle "Param3:"
+        ]
+        stack [Orientation StackPanelOrientation.Vertical; Width 64] [
+            text valueStyle "Value1"
+            text valueStyle "Value2"
+            text valueStyle "Value3"
+        ]
     ]
-    stack StackPanelOrientation.Vertical [Width 64] [
-        text valueStyle "Value1"
-        text valueStyle "Value2"
-        text valueStyle "Value3"
-    ]
-]
-|> renderToGraphics g
 ```
 ![Stack example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/stack.bmp)
 
 ### Dock panel
+Dock panel allows to attach child elements to one of the sides or fill the remaining space. 
 ```F#
-open IoT.Display
-open IoT.Display.Graphics
-open IoT.Display.Layout
-
-let g = Graphics(AddressingMode.ColumnMajor, Endianness.Little, {Size.Width = 128; Height = 64})
-
-dock [][
-    text [Dock Dock.Bottom; Margin (thicknessSame 1)] "Bottom line"
-    stack StackPanelOrientation.Vertical [Dock Dock.Left; Margin (thicknessSame 1)] [
-        text [] "1"
-        text [] "2"
-        text [] "3"
+    dock [] [
+        text [Dock Dock.Bottom; Margin (thicknessSame 1)] "Bottom line"
+        stack [Orientation StackPanelOrientation.Vertical; Dock Dock.Left; Margin (thicknessSame 1)] [
+            text [] "1"
+            text [] "2"
+            text [] "3"
+        ]
+        text [Dock Dock.Fill; HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center] "Filled"
     ]
-    text [Dock Dock.Fill; HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center] "Filled"
-]
-|> renderToGraphics g
 ```
 ![Dock example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/dock.bmp)
 
-### Visuals examples
+The order in which the children are added affects space allocation. The element with `Dock Fill` should be the last child.
 ```F#
-open IoT.Display
-open IoT.Display.Graphics
-open IoT.Display.Primitives
-
-let g = Graphics(AddressingMode.ColumnMajor, Endianness.Little, {Size.Width = 128; Height = 64})
-
-let r = Random()
-List.init 21 (fun _ -> r.Next(30) + 2)
-|> List.mapi(fun i p -> Rectangle ({X = i * 6; Y = 63 - p}, {X = i * 6 + 4; Y = 63}) )
-|> List.append [
-        Visual.Line ({X = 0; Y = 0},{X = 127; Y = 31})
-        Visual.Line ({X = 0; Y = 31},{X = 127; Y = 0})
+    dock [] [
+        dock [Width 64; Padding (thicknessSame 2)] [
+            border [Dock Dock.Left; Width 20; Thickness (thicknessSame 1)] ( canvas [] [] )
+            border [Dock Dock.Bottom; Height 20; Thickness (thicknessSame 1)] ( canvas [] [] )
+        ]
+        dock [Width 64; Padding (thicknessSame 2)] [
+            border [Dock Dock.Bottom; Height 20; Thickness (thicknessSame 1)] ( canvas [] [] )
+            border [Dock Dock.Left; Width 20; Thickness (thicknessSame 1)] ( canvas [] [] )
+        ]
     ]
-|> List.iter (renderVisualToGraphics g)
+```
+![Dock order example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/showDockOrder.bmp)
+
+### Text examples
+While rendering text it's possible to set word wrapping to none, char, or word.
+
+```F#
+    text [TextWrapping Word] "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the"
+```
+![Text example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/textWrapping.bmp)
+
+### Margin examples
+While rendering text it's possible to set word wrapping to none, char, or word.
+
+```F#
+    let attrs:IBorderAttribute list = [thicknessSame 10 |> Margin; thicknessSame 1 |> Thickness]
+    border attrs (
+        border attrs (
+            border attrs (canvas [][])
+        )
+    )
+```
+![Margin example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/margin.bmp)
+
+### Visuals examples
+It's also possible to render basic primitives like dot, line, polyline, filled rectangle, or quadratic bezier curve. The bridge between `LayoutElement` and `Visual` is `Canvas`.
+
+```F#
+    dock [] [
+        canvas [Dock Dock.Fill; HorizontalAlignment HorizontalAlignment.Center; VerticalAlignment VerticalAlignment.Center; Width 21; Height 21] [
+            Polyline [{X = 5; Y = 9}; {X = 9; Y = 16}; {X = 15; Y = 5}]
+            QuadraticBezier ({X = 0; Y = 10}, {X = 0; Y = 20}, {X = 10; Y = 20})
+            QuadraticBezier ({X = 0; Y = 10}, {X = 0; Y = 0}, {X = 10; Y = 0})
+            QuadraticBezier ({X = 20; Y = 10}, {X = 20; Y = 20}, {X = 10; Y = 20})
+            QuadraticBezier ({X = 20; Y = 10}, {X = 20; Y = 0}, {X = 10; Y = 0})
+        ]
+    ]
+```
+![Canvas example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/canvas.bmp)
+
+```F#
+    let r = System.Random()
+    canvas [Width 128; Height 64] (
+        List.init 21 (fun _ -> r.Next(30) + 2)
+        |> List.mapi(fun i p -> Visual.Rectangle {Point = {X = i * 6; Y = 63 - p}; Size = {Width = 4; Height = p }})
+        |> List.append [
+            Visual.Line ({X = 0; Y = 0},{X = 127; Y = 31})
+            Visual.Line ({X = 0; Y = 31},{X = 127; Y = 0})
+        ]
+    )
 ```
 ![Visuals example rendered to 128x64 buffer](https://raw.githubusercontent.com/serhiiz/IoT.Display/master/Docs/Images/visuals.bmp)
 
