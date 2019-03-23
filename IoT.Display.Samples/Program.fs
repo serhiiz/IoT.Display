@@ -4,6 +4,8 @@ open IoT.Display
 open IoT.Display.Graphics
 open IoT.Display.Primitives
 open IoT.Display.Layout
+open IoT.Display.Devices
+open IoT.Display.Devices.SSD1306
 
 let renderToFile fileName size layout = 
     
@@ -99,6 +101,47 @@ let showMargin () =
         )
     )
     |> renderToFile "margin.bmp" size
+
+let showSSD1306Commands (device:IDevice) = 
+
+    use display = new SSD1306(device) :> ISSD1306
+
+    setup128x64 |> List.iter display.SendCommand
+    let g = Graphics.createFromDisplay display
+    dock [][] |> renderToDisplay display
+
+    SetMemoryAddressingMode Vertical |> display.SendCommand
+    DeactivateScroll |> display.SendCommand
+    SetPageAddress (Page0, Page7) |> display.SendCommand
+    SetColumnAddress (0uy, 127uy) |> display.SendCommand
+    SetDisplayStartLine 0uy |> display.SendCommand
+    SetDisplayOffset 0uy |> display.SendCommand
+    EntireDisplayOn true |> display.SendCommand
+    EntireDisplayOn false |> display.SendCommand
+    InverseDisplay true |> display.SendCommand
+    InverseDisplay false |> display.SendCommand
+    SetColumnAddress (16uy, 111uy) |> display.SendCommand
+    SetMultiplexRatio 16uy |> display.SendCommand
+    SetMultiplexRatio 26uy |> display.SendCommand
+    SetMultiplexRatio 36uy |> display.SendCommand
+    SetMultiplexRatio 46uy |> display.SendCommand
+    SetMultiplexRatio 56uy |> display.SendCommand
+
+    let hConfig = {
+        Direction = ScrollDirection.Right; 
+        StartPage = Page0; 
+        EndPage = Page1; 
+        Interval = ScrollInterval.Frames64
+    }
+
+    let vConfig = {
+        Offset = 2uy; 
+        StartRow = 24uy; 
+        Height = 16uy;
+    }
+
+    SetupScroll (hConfig, Some vConfig) |> display.SendCommand
+    ActivateScroll |> display.SendCommand
 
 [<EntryPoint>]
 let main _ =
