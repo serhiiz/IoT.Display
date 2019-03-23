@@ -1,4 +1,4 @@
-# Layout library for monochrome OLED dispalys in IoT applications written in F#
+# Layout engine for monochrome OLED dispalys in IoT applications written in F#
 The library is supposed to be used in applications where UI is rendered every time there's a change. The layout is defined declaratively using elements like dock or stack panels similarly to WPF. Once defined it can be rendered into a buffer and then sent to the display driver. This library does not include platform specific communication code for SSD1306. It requires an implementation of a tiny interface or use one of the avalialbe ones:
 - [IoT.Display.UWP](https://github.com/serhiiz/IoT.Display.UWP) UWP adapter and demo app;
 - [IoT.Display.RaspberrySharp](https://github.com/serhiiz/IoT.Display.RaspberrySharp) .Net/Mono adapter for Raspberry Pi and demo app (based on [RaspberrySharp](https://github.com/JTrotta/RaspberrySharp)).
@@ -11,8 +11,10 @@ The library is supposed to be used in applications where UI is rendered every ti
 - Border
 - Text
 - Image
+- Canvas
 - Horizontal/Vertical alignment
 - Marging/Padding
+- Min/Max width/height
 
 ## Display Drivers Support:
 - [SMD1306](https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf)
