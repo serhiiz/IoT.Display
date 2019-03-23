@@ -4,7 +4,6 @@ open IoT.Display
 open IoT.Display.Graphics
 open IoT.Display.Primitives
 open IoT.Display.Layout
-open System.Xml.Linq
 
 let renderToFile fileName size layout = 
     
@@ -111,6 +110,15 @@ let showVisuals () =
     )
     |> renderToFile "visuals.bmp" size
 
+let showMargin () = 
+    let attrs:IBorderAttribute list = [thicknessSame 10 |> Margin; thicknessSame 1 |> Thickness]
+    border attrs (
+        border attrs (
+            border attrs (canvas [][])
+        )
+    )
+    |> renderToFile "margin.bmp" size
+
 [<EntryPoint>]
 let main _ =
     showDockOrder()
@@ -119,4 +127,5 @@ let main _ =
     showStackPanel()
     showDockPanel()
     showVisuals()
+    showMargin()
     0
