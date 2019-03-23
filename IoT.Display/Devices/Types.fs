@@ -13,12 +13,12 @@ type IDisplay =
     abstract member Size: Size
     abstract member AddressingMode: AddressingMode
     abstract member Endianness: Endianness
-    abstract member Display: Graphics -> unit
+    abstract member Display: IGraphicDispalyMemory -> unit
 
 [<AutoOpen>]
 module Graphics =
     let createFromDisplayCustomSize (display:IDisplay) size = 
-        Graphics(display.AddressingMode, display.Endianness, size)
+        Graphics.createFromSize display.AddressingMode display.Endianness size
 
     let createFromDisplay (display:IDisplay) = 
         createFromDisplayCustomSize display display.Size

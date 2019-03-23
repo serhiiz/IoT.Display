@@ -8,7 +8,7 @@ open IoT.Display.Layout
 
 module MeasureLayoutTests = 
     let maxSize = {Size.Width=128; Height=64}
-    let onePixelGraphics = Graphics(ColumnMajor, Little, {Width = 1; Height = 1})
+    let onePixelGraphics = Graphics.createDefault {Width = 1; Height = 1}
 
     [<Test>]
     let ``Vertical empty stack test`` () =

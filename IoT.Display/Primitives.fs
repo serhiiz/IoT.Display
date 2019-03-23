@@ -40,7 +40,7 @@ module Primitives =
             |> List.map (fun p -> {Point.X = p.X |> int; Point.Y = p.Y |> int})
             |> writePolyline graphics
 
-    let private writeLine (x1:int) (y1:int) (x2:int) (y2:int) (graphics:Graphics) =
+    let private writeLine (x1:int) (y1:int) (x2:int) (y2:int) (graphics:IGraphics) =
         let dx = x2 - x1
         let dy = y2 - y1
 
@@ -67,7 +67,7 @@ module Primitives =
                 if y >= 0 && y < graphics.Size.Height then
                     graphics.SetPixel x y
     
-    let private writeRectangle (rect:Rect) (graphics:Graphics) =
+    let private writeRectangle (rect:Rect) (graphics:IGraphics) =
         let r' = Rect.getIntersection rect (Rect.fromSize graphics.Size)
 
         for i = r'.Point.X to r'.Point.X + r'.Size.Width - 1 do
@@ -79,7 +79,7 @@ module Primitives =
             |> List.pairwise
             |> List.iter (fun (p1, p2) -> writeLine p1.X p1.Y p2.X p2.Y graphics)
 
-    let renderVisualToGraphics (graphics:Graphics) visual =
+    let renderVisualToGraphics (graphics:IGraphics) visual =
         match visual with
         | Dot p -> 
             if (p.X >= 0 && p.X < graphics.Size.Width && p.Y >= 0 && p.Y < graphics.Size.Height) then 

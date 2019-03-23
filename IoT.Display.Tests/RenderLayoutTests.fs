@@ -2,20 +2,18 @@ namespace IoT.Display.Tests
 
 open NUnit.Framework
 open IoT.Display
-open IoT.Display.Graphics
 open IoT.Display.Primitives
 open IoT.Display.Layout
 
 module RenderLayoutTests = 
-    let point2x2 = Graphics(ColumnMajor, Little, {Size.Width = 2; Height = 2})
+    let point2x2 = Graphics.createDefault {Size.Width = 2; Height = 2}
     for i = 0 to 3 do point2x2.SetPixel (i % 2) (i / 2)
     let width = 8
     let height = 8
     let rect = {Point={X = 0; Y = 0}; Size={Width=width; Height=height}}
 
     let createGraphics() = 
-        Graphics(ColumnMajor, Little, {Size.Width = width; Height = height})
-    
+        Graphics.createDefault {Size.Width = width; Height = height}
 
     [<Test>]
     let ``Dock right align center test`` () =
@@ -26,8 +24,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │      ▄▄│
@@ -44,8 +41,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │      ██│
 │        │
@@ -62,8 +58,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -80,8 +75,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │▄▄      │
@@ -98,8 +92,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │██      │
 │        │
@@ -116,8 +109,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -134,8 +126,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │   ██   │
 │        │
@@ -152,8 +143,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │██      │
 │        │
@@ -170,8 +160,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │      ██│
 │        │
@@ -188,8 +177,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -206,8 +194,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -224,8 +211,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -243,8 +229,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │████    │
 │        │
@@ -262,8 +247,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -282,8 +266,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │    ██  │
 │  ▄▄    │
@@ -301,8 +284,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │██      │
 │██      │
@@ -320,8 +302,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -340,8 +321,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │      ██│
 │   ██   │
@@ -359,8 +339,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │████    │
 │        │
@@ -384,8 +363,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │████    │
 │        │
@@ -403,8 +381,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │  ██ ▄▄ │
@@ -423,8 +400,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │██ ██ ██│
 │        │
@@ -441,8 +417,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -459,8 +434,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -479,8 +453,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │ ██     │
 │  ▄▄    │
@@ -490,15 +463,14 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render 'A' char test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 9; Height = 14})
+        let g = Graphics.createDefault {Size.Width = 9; Height = 14}
 
         dock [] [
             text [] "A"
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌─────────┐
 │    ▄    │
 │   ▄▀▄   │
@@ -511,15 +483,14 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render 'a' char test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 7; Height = 14})
+        let g = Graphics.createDefault {Size.Width = 7; Height = 14}
 
         dock [] [
             text [] "a"
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌───────┐
 │       │
 │       │
@@ -532,15 +503,14 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render "123" string test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 15; Height = 14})
+        let g = Graphics.createDefault {Size.Width = 15; Height = 14}
 
         dock [] [
             text [] "123"
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌───────────────┐
 │  ▄  ▄▄▄   ▄▄▄ │
 │▀▀█ █   █ ▀   █│
@@ -553,13 +523,12 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render "1" aligned left test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 15; Height = 14})
+        let g = Graphics.createDefault {Size.Width = 15; Height = 14}
 
         text [TextAlignment HorizontalAlignment.Left; Width 15] "1"
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌───────────────┐
 │  ▄            │
 │▀▀█            │
@@ -572,13 +541,12 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render "1" aligned right test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 15; Height = 14})
+        let g = Graphics.createDefault {Size.Width = 15; Height = 14}
 
         text [TextAlignment HorizontalAlignment.Right; Width 15] "1"
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌───────────────┐
 │              ▄│
 │            ▀▀█│
@@ -591,13 +559,12 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render "1" aligned center test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 15; Height = 14})
+        let g = Graphics.createDefault {Size.Width = 15; Height = 14}
 
         text [TextAlignment HorizontalAlignment.Center; Width 15] "1"
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌───────────────┐
 │        ▄      │
 │      ▀▀█      │
@@ -610,13 +577,12 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render "13" aligned stretch test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 15; Height = 14})
+        let g = Graphics.createDefault {Size.Width = 15; Height = 14}
 
         text [TextAlignment HorizontalAlignment.Stretch; Width 15] "13"
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌───────────────┐
 │  ▄        ▄▄▄ │
 │▀▀█       ▀   █│
@@ -629,13 +595,12 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render text wrap word test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 22; Height = 30})
+        let g = Graphics.createDefault {Size.Width = 22; Height = 30}
 
         text [TextWrapping Word] "111 111"
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌──────────────────────┐
 │  ▄   ▄   ▄           │
 │▀▀█ ▀▀█ ▀▀█           │
@@ -656,13 +621,12 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render text wrap char test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 12; Height = 30})
+        let g = Graphics.createDefault {Size.Width = 12; Height = 30}
 
         text [TextWrapping Char] "123"
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────────┐
 │  ▄  ▄▄▄    │
 │▀▀█ █   █   │
@@ -683,13 +647,12 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render text wrap char outside of bounds test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 12; Height = 22})
+        let g = Graphics.createDefault {Size.Width = 12; Height = 22}
 
         text [TextWrapping Char] "123"
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────────┐
 │  ▄  ▄▄▄    │
 │▀▀█ █   █   │
@@ -713,8 +676,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │  ▄  ▄▄▄│
 │▀▀█ █   │
@@ -724,13 +686,12 @@ module RenderLayoutTests =
 
     [<Test>]
     let ``Render text wrap word second line test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 13; Height = 30})
+        let g = Graphics.createDefault {Size.Width = 13; Height = 30}
 
         text [TextWrapping Word] "12 3 4"
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌─────────────┐
 │  ▄  ▄▄▄     │
 │▀▀█ █   █    │
@@ -762,8 +723,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │ ██ ██ █│
 │        │
@@ -784,8 +744,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │▄▄      │
 │▀▀      │
@@ -796,15 +755,14 @@ module RenderLayoutTests =
     [<Test>]
     let ``Border thickness test`` () =
         let g = createGraphics()
-        let emptyGraphics = Graphics(AddressingMode.ColumnMajor, Little, Size.empty)
+        let emptyGraphics = Graphics.createDefault Size.empty
 
         border [Thickness (thickness 1 2 3 1); Margin (thicknessSame 1)] (
             image [] emptyGraphics
         )
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │ ▄▄▄▄▄▄ │
 │ █▀▀███ │
@@ -821,8 +779,7 @@ module RenderLayoutTests =
         )
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │█▀▀▀▀▀▀█│
 │█ ██   █│
@@ -839,8 +796,7 @@ module RenderLayoutTests =
         )
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │█▀▀▀▀▀▀█│
 │█  ▄▄  █│
@@ -857,8 +813,7 @@ module RenderLayoutTests =
         ]
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │  ▄▄▄   │
@@ -875,8 +830,7 @@ module RenderLayoutTests =
         )
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │  ▄▄▄▄  │
 │  █  █  │
@@ -893,8 +847,7 @@ module RenderLayoutTests =
         )
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │ █▀▀▀▀█ │
@@ -911,8 +864,7 @@ module RenderLayoutTests =
         )
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │  ▄▄▄▄  │
 │  █  █  │
@@ -929,8 +881,7 @@ module RenderLayoutTests =
         )
         |> renderToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │ █▀▀▀▀█ │

@@ -2,7 +2,6 @@ namespace IoT.Display.Tests
 
 open NUnit.Framework
 open IoT.Display
-open IoT.Display.Graphics
 open IoT.Display.Primitives
 
 module RenderPrimitivesTests = 
@@ -10,7 +9,7 @@ module RenderPrimitivesTests =
     let height = 8
     
     let createGraphics() = 
-        Graphics(ColumnMajor, Little, {Size.Width = width; Height = height})
+        Graphics.createDefault {Size.Width = width; Height = height}
     
     [<Test>]
     let ``Dot in left top corner`` () =
@@ -19,8 +18,7 @@ module RenderPrimitivesTests =
         Dot {X = 0; Y = 0}
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │▀       │
 │        │
@@ -35,8 +33,7 @@ module RenderPrimitivesTests =
         Dot {X = 7; Y = 7}
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -51,8 +48,7 @@ module RenderPrimitivesTests =
         Dot {X = 8; Y = 8}
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -69,8 +65,7 @@ module RenderPrimitivesTests =
         Line ({X = x1; Y = y1}, {X = x2; Y = y2})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │▄       │
 │█       │
@@ -87,8 +82,7 @@ module RenderPrimitivesTests =
         Line ({X = x1; Y = y1}, {X = x2; Y = y2})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │█       │
 │█       │
@@ -105,8 +99,7 @@ module RenderPrimitivesTests =
         Line ({X = x1; Y = y1}, {X = x2; Y = y2})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │ ▀▀▀▀▀▀ │
 │        │
@@ -123,8 +116,7 @@ module RenderPrimitivesTests =
         Line ({X = x1; Y = y1}, {X = x2; Y = y2})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │▀▀▀▀▀▀▀▀│
 │        │
@@ -141,8 +133,7 @@ module RenderPrimitivesTests =
         Line ({X = x1; Y = y1}, {X = x2; Y = y2})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │ ▄      │
 │  ▀▄    │
@@ -159,8 +150,7 @@ module RenderPrimitivesTests =
         Line ({X = x1; Y = y1}, {X = x2; Y = y2})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │      ▄ │
 │    ▄▀  │
@@ -175,8 +165,7 @@ module RenderPrimitivesTests =
         Rectangle {Point = {X = 1; Y = 1}; Size = {Width = 6; Height = 6}}
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │ ▄▄▄▄▄▄ │
 │ ██████ │
@@ -191,8 +180,7 @@ module RenderPrimitivesTests =
         Rectangle {Point = {X = 2; Y = -1}; Size = {Width = 4; Height = 10}}
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │  ████  │
 │  ████  │
@@ -207,8 +195,7 @@ module RenderPrimitivesTests =
         Rectangle {Point = {X = 7; Y = 7}; Size = {Width = 7; Height = 7}}
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -225,8 +212,7 @@ module RenderPrimitivesTests =
         Rectangle {Point = {X = 0; Y = 0}; Size = {Width = widht; Height = height}}
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │        │
 │        │
@@ -242,8 +228,7 @@ module RenderPrimitivesTests =
         Polyline [{X = 1; Y = 1}; {X = 6; Y = 6}; {X = 6; Y = 0}]
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │ ▄    █ │
 │  ▀▄  █ │
@@ -258,8 +243,7 @@ module RenderPrimitivesTests =
         Polyline [{X = 0; Y = 0}; {X = 0; Y = 7}; {X = 7; Y = 7}; {X = 7; Y = 0}; {X = 0; Y = 0}]
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │█▀▀▀▀▀▀█│
 │█      █│
@@ -274,8 +258,7 @@ module RenderPrimitivesTests =
         QuadraticBezier ({X = 0; Y = 0}, {X = 0; Y = 7}, {X = 7; Y = 7})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │█       │
 │▀▄      │
@@ -285,13 +268,12 @@ module RenderPrimitivesTests =
 
     [<Test>]
     let ``Quadratic Bezier 16x16 test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 16; Height = 16})
+        let g = Graphics.createDefault {Size.Width = 16; Height = 16}
 
         QuadraticBezier ({X = 0; Y = 0}, {X = 0; Y = 15}, {X = 15; Y = 15})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────────────┐
 │█               │
 │█               │
@@ -310,8 +292,7 @@ module RenderPrimitivesTests =
         Line ({X = 0; Y = 0}, {X = 1; Y = 7})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │█       │
 │█       │
@@ -326,8 +307,7 @@ module RenderPrimitivesTests =
         Line ({X = 0; Y = 0}, {X = 7; Y = 1})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │▀▀▀▀▄▄▄▄│
 │        │
@@ -337,13 +317,12 @@ module RenderPrimitivesTests =
 
     [<Test>]
     let ``Non-square graphics diaonal light slope test`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 16; Height = 8})
+        let g = Graphics.createDefault {Size.Width = 16; Height = 8}
 
         Line ({X = 0; Y = 0}, {X = 15; Y = 9})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────────────┐
 │▀▄▄             │
 │   ▀▀▄          │
@@ -353,13 +332,12 @@ module RenderPrimitivesTests =
 
     [<Test>]
     let ``Non-square graphics diaonal light slope test 2`` () =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 8; Height = 16})
+        let g = Graphics.createDefault {Size.Width = 8; Height = 16}
 
         Line ({X = 0; Y = 0}, {X = 9; Y = 15})
         |> renderVisualToGraphics g
 
-        let actual = g.ToString()
-        assertRender actual """
+        assertRender g """
 ┌────────┐
 │▀▄      │
 │ ▀▄     │

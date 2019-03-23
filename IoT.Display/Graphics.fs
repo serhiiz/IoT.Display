@@ -2,6 +2,11 @@ namespace IoT.Display
 
 module Graphics =
 
+    type IGraphics = 
+        abstract member Size : Size with get
+        abstract member SetPixel : x:int -> y:int -> unit
+        abstract member GetPixel : x:int -> y:int -> byte
+
     type AddressingMode = 
         | RowMajor 
         | ColumnMajor
@@ -10,6 +15,12 @@ module Graphics =
     type Endianness = 
         | Little 
         | Big
+
+    type IGraphicDispalyMemory = 
+        inherit IGraphics
+        abstract member GetBuffer : unit -> byte[]
+        abstract member AddressingMode : AddressingMode with get
+        abstract member Endianness : Endianness with get
 
     [<Literal>]
     let BitsInByte = 8   
@@ -20,7 +31,7 @@ module Graphics =
         | ColumnMajor -> heightBytes * size.Width
         | RowMajor -> widthBytes * size.Height
 
-    type Graphics private(mode, endianness, size, buffer, widthBytes, heightBytes) =
+    type private Graphics private(mode, endianness, size, buffer, widthBytes, heightBytes) =
         let getByteIndex x y = function
             | Page -> x + (y / BitsInByte) * size.Width
             | ColumnMajor -> x * heightBytes + y / BitsInByte
@@ -49,44 +60,69 @@ module Graphics =
             if (buffer.Length <> expectedLength)
                 then invalidArg "buffer" (sprintf "The length of the array is invalid. Expected %i, but got %i." expectedLength buffer.Length)
             Graphics(mode, endianness, size, buffer, widthBytes, heightBytes)
+   
+        interface IGraphicDispalyMemory with
+            member __.Size with get () = size
 
-        member __.SetPixel x y =
-            let index = getByteIndex x y mode  
-            let pos = getBitIndex x y mode endianness
-            let value = 1uy <<< pos
-            buffer.[index] <- buffer.[index] ||| value
+            member __.SetPixel x y =
+                let index = getByteIndex x y mode  
+                let pos = getBitIndex x y mode endianness
+                let value = 1uy <<< pos
+                buffer.[index] <- buffer.[index] ||| value
 
-        member __.GetPixel x y = 
-            let index = getByteIndex x y mode  
-            let pos = getBitIndex x y mode endianness
-            let value = 1uy <<< pos
-            (buffer.[index] &&& value) >>> pos
+            member __.GetPixel x y = 
+                let index = getByteIndex x y mode  
+                let pos = getBitIndex x y mode endianness
+                let value = 1uy <<< pos
+                (buffer.[index] &&& value) >>> pos
 
-        member __.GetBuffer() = buffer
-        member __.Size with get () = size
-        member __.AddressingMode with get() = mode
-        member __.Endianness with get () = endianness
+            member __.GetBuffer() = buffer        
+            member __.AddressingMode with get() = mode
+            member __.Endianness with get () = endianness
 
-        override __.ToString() =
-            let lines = 
-                List.init (size.Height / 2) id 
-                |> List.map (fun j -> 
-                    let chars = 
-                        List.init size.Width id 
-                        |> List.map (fun i -> 
-                            let t = __.GetPixel i (j*2)
-                            let b = __.GetPixel i ((j*2) + 1)
-                            match (t, b) with 
-                            | 1uy, 1uy -> '█'
-                            | 0uy, 1uy -> '▄'
-                            | 1uy, 0uy -> '▀'
-                            | _ -> ' ')
-                    System.String(('│' :: chars @ ['│']) |> List.toArray))
-            let header = new System.String(('┌' :: List.replicate size.Width '─' @ ['┐']) |> List.toArray)
-            let footer = new System.String(('└' :: List.replicate size.Width '─' @ ['┘']) |> List.toArray)
-            System.String.Join(System.Environment.NewLine, header :: lines @ [footer])
+    type GraphicsWindow(graphics:IGraphics, rect:Rect) =
+        let actualRect = Rect.getIntersection (Rect.fromSize graphics.Size) rect
+        interface IGraphics with
+            member __.Size with get () = actualRect.Size
 
-    let copyTo targetRect (targetGraphics:Graphics) sourceRect (sourceGraphics:Graphics) = 
+            member __.SetPixel x y =
+                graphics.SetPixel (actualRect.Point.X + x) (actualRect.Point.Y + y)
+
+            member __.GetPixel x y = 
+                graphics.GetPixel (actualRect.Point.X + x) (actualRect.Point.Y + y)
+
+    let createFromSize mode endianness size = 
+        Graphics (mode, endianness, size) :> IGraphicDispalyMemory
+
+    let createFromBuffer mode endianness size buffer = 
+        Graphics (mode, endianness, size, buffer) :> IGraphicDispalyMemory
+
+    let createDefault size = 
+        createFromSize Page Little size
+
+    let createWindow graphics rect = 
+        GraphicsWindow (graphics, rect) :> IGraphics
+
+    let renderToString (g:IGraphics) =
+        let lines = 
+            List.init (g.Size.Height / 2) id 
+            |> List.map (fun j -> 
+                let chars = 
+                    List.init g.Size.Width id 
+                    |> List.map (fun i -> 
+                        let t = g.GetPixel i (j*2)
+                        let b = g.GetPixel i ((j*2) + 1)
+                        match (t, b) with 
+                        | 1uy, 1uy -> '█'
+                        | 0uy, 1uy -> '▄'
+                        | 1uy, 0uy -> '▀'
+                        | _ -> ' ')
+                System.String(('│' :: chars @ ['│']) |> List.toArray))
+        let header = new System.String(('┌' :: List.replicate g.Size.Width '─' @ ['┐']) |> List.toArray)
+        let footer = new System.String(('└' :: List.replicate g.Size.Width '─' @ ['┘']) |> List.toArray)
+        System.String.Join(System.Environment.NewLine, header :: lines @ [footer])
+
+    let copyTo targetRect (targetGraphics:IGraphics) sourceRect (sourceGraphics:IGraphics) = 
         let copySourceRect = Rect.getIntersection (Rect.fromSize sourceGraphics.Size) sourceRect
         let copyTargetRect = Rect.getIntersection (Rect.fromSize targetGraphics.Size) targetRect
         let copySize = Size.combine (fun a b -> System.Math.Min(a,b)) copySourceRect.Size copyTargetRect.Size
@@ -96,8 +132,8 @@ module Graphics =
                 if (sourceGraphics.GetPixel (i + copySourceRect.Point.X) (j + copySourceRect.Point.Y) = 1uy) then
                     targetGraphics.SetPixel (i + copyTargetRect.Point.X) (j + copyTargetRect.Point.Y)
 
-    let clip rect (graphics:Graphics) = 
+    let clip rect (graphics:IGraphicDispalyMemory) = 
         let copyRect = Rect.getIntersection (Rect.fromSize graphics.Size) rect
-        let newGraphics = Graphics(graphics.AddressingMode, graphics.Endianness, copyRect.Size)
+        let newGraphics = createFromSize graphics.AddressingMode graphics.Endianness copyRect.Size
         copyTo (Rect.fromSize copyRect.Size) newGraphics rect graphics
         newGraphics

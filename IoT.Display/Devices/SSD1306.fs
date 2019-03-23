@@ -192,7 +192,7 @@ type SSD1306(device:IDevice) as this =
         getCommandBytes command
         |> device.Write
 
-    let ensureModeAndEndianness (g:Graphics) =         
+    let ensureModeAndEndianness (g:IGraphicDispalyMemory) =
         if g.AddressingMode = addressingMode && g.Endianness = endianness && g.Size.Width = displayRect.Size.Width && g.Size.Height = displayRect.Size.Height then
             g
         else
@@ -201,7 +201,7 @@ type SSD1306(device:IDevice) as this =
             Graphics.copyTo rect newGraphics rect g
             newGraphics
 
-    let display (g:Graphics) = 
+    let display (g:IGraphicDispalyMemory) = 
         g 
         |> ensureModeAndEndianness 
         |> (fun p -> p.GetBuffer()) 
@@ -246,8 +246,8 @@ module SSD1306 =
             SetPageAddress (Page2, Page7)
         ]
 
-    let doubleHorizontalLines (g:Graphics) =
-        let newGraphics = Graphics(g.AddressingMode, g.Endianness, {g.Size with Height = g.Size.Height * 2})
+    let doubleHorizontalLines (g:IGraphicDispalyMemory) =
+        let newGraphics = Graphics.createFromSize g.AddressingMode g.Endianness {g.Size with Height = g.Size.Height * 2}
         for x = 0 to g.Size.Width - 1 do
             for y = 0 to g.Size.Height - 1 do
                 if (g.GetPixel x y = 1uy) then

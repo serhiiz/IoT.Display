@@ -1,11 +1,14 @@
 ﻿namespace IoT.Display.Tests
 
 open System
+open IoT.Display.Graphics
 open Swensen.Unquote
 
 [<AutoOpen>]
 module Assert = 
-    let assertRender (actual:String) (expected:String) =
+    let assertRender (g:IGraphics) (expected:String) =
+        let actual = g |> renderToString
+
         let fail () = 
             let message = 
                 "Expected: " 

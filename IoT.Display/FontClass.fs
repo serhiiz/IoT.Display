@@ -109,4 +109,4 @@ module FontClass =
     let getCharGraphics c = 
         let bytes = getCharData c
         let width = bytes.Length /2
-        Graphics(AddressingMode.ColumnMajor, Little, {Width = width; Height = fontHeight}, bytes)
+        Graphics.createFromBuffer AddressingMode.ColumnMajor Little {Width = width; Height = fontHeight} bytes

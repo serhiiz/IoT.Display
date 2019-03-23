@@ -18,7 +18,7 @@ module GraphicsTests =
     //│              ▀▄│
     //└────────────────┘    
     let getAssymetricDiagonalGraphics mode endianness = 
-        let g = Graphics(mode, endianness, {Size.Width = 16; Height = 16})
+        let g = Graphics.createFromSize mode endianness {Size.Width = 16; Height = 16}
         for i = 0 to 15 do
             g.SetPixel i i
         g.SetPixel 15 0
@@ -83,7 +83,7 @@ module GraphicsTests =
     [<TestCase(3, 7, 3)>]
     [<TestCase(3, 9, 6)>]
     let ``Verify graphics buffer length Column Major`` width height expectedLength =
-        let g = Graphics(ColumnMajor, Little, {Size.Width = width; Height = height})
+        let g = Graphics.createFromSize ColumnMajor Little {Size.Width = width; Height = height}
         g.GetBuffer().Length =! expectedLength
 
     [<Test>]
@@ -91,7 +91,7 @@ module GraphicsTests =
     [<TestCase(3, 7, 3)>]
     [<TestCase(3, 9, 6)>]
     let ``Verify graphics buffer length Page`` width height expectedLength =
-        let g = Graphics(Page, Little, {Size.Width = width; Height = height})
+        let g = Graphics.createFromSize Page Little {Size.Width = width; Height = height}
         g.GetBuffer().Length =! expectedLength
     
     [<Test>]
@@ -99,7 +99,7 @@ module GraphicsTests =
     [<TestCase(7, 3, 3)>]
     [<TestCase(9, 3, 6)>]
     let ``Verify graphics buffer length Row Major`` width height expectedLength =
-        let g = Graphics(RowMajor, Little, {Size.Width = width; Height = height})
+        let g = Graphics.createFromSize RowMajor Little {Size.Width = width; Height = height}
         g.GetBuffer().Length =! expectedLength
 
     [<Test>]
@@ -109,7 +109,7 @@ module GraphicsTests =
                        0x00uy; 0x01uy; 0x00uy; 0x02uy; 0x00uy; 0x04uy; 0x00uy; 0x08uy; 
                        0x00uy; 0x10uy; 0x00uy; 0x20uy; 0x00uy; 0x40uy; 0x01uy; 0x80uy|]
 
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 16; Height = 16}, buffer)
+        let g = Graphics.createFromBuffer ColumnMajor Little {Size.Width = 16; Height = 16} buffer
         let result = clip {Point = {X = 0; Y = 0}; Size = {Width=8;Height=8}} g
         result.GetBuffer() =! [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
 
@@ -120,7 +120,7 @@ module GraphicsTests =
                        0x00uy; 0x01uy; 0x00uy; 0x02uy; 0x00uy; 0x04uy; 0x00uy; 0x08uy; 
                        0x00uy; 0x10uy; 0x00uy; 0x20uy; 0x00uy; 0x40uy; 0x01uy; 0x80uy|]
 
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 16; Height = 16}, buffer)
+        let g = Graphics.createFromBuffer ColumnMajor Little {Size.Width = 16; Height = 16} buffer
         let result = clip {Point = {X = 0; Y = 0}; Size = {Width=24;Height=8}} g
         result.GetBuffer() =! [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy;
                                 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x01uy|]
@@ -132,7 +132,7 @@ module GraphicsTests =
                        0x00uy; 0x01uy; 0x00uy; 0x02uy; 0x00uy; 0x04uy; 0x00uy; 0x08uy; 
                        0x00uy; 0x10uy; 0x00uy; 0x20uy; 0x00uy; 0x40uy; 0x01uy; 0x80uy|]
 
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 16; Height = 16}, buffer)
+        let g = Graphics.createFromBuffer ColumnMajor Little {Size.Width = 16; Height = 16} buffer
         let result = clip {Point = {X = 4; Y = 0}; Size = {Width=8;Height=8}} g
         result.GetBuffer() =! [|0x10uy; 0x20uy; 0x40uy; 0x80uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy|]
 
@@ -143,7 +143,7 @@ module GraphicsTests =
                        0x00uy; 0x01uy; 0x00uy; 0x02uy; 0x00uy; 0x04uy; 0x00uy; 0x08uy; 
                        0x00uy; 0x10uy; 0x00uy; 0x20uy; 0x00uy; 0x40uy; 0x01uy; 0x80uy|]
 
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 16; Height = 16}, buffer)
+        let g = Graphics.createFromBuffer ColumnMajor Little {Size.Width = 16; Height = 16} buffer
         let result = clip {Point = {X = 8; Y = 8}; Size = {Width=8;Height=8}} g
         result.GetBuffer() =! [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
 
@@ -151,7 +151,7 @@ module GraphicsTests =
     let ``Clip returns original graphics when clip size is larger and starts from origin test`` () =
         let buffer = [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
 
-        let g = Graphics(ColumnMajor, Little, {Size.Width = 8; Height = 8}, buffer)
+        let g = Graphics.createFromBuffer ColumnMajor Little {Size.Width = 8; Height = 8} buffer
         let result = clip {Point = {X = 0; Y = 0}; Size = {Width=16;Height=16}} g
         result.GetBuffer() =! [|0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
 
@@ -162,8 +162,8 @@ module GraphicsTests =
                        0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy;
                        0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
 
-        let sourceGraphics = Graphics(Page, Little, {Size.Width = 16; Height = 16}, buffer)
-        let targetGraphics = Graphics(ColumnMajor, Little, {Size.Width = 16; Height = 16})
+        let sourceGraphics = Graphics.createFromBuffer Page Little {Size.Width = 16; Height = 16} buffer
+        let targetGraphics = Graphics.createFromSize ColumnMajor Little {Size.Width = 16; Height = 16}
 
         let rect = {Point = {X = 0; Y = 0}; Size = {Width=16;Height=16}}
         copyTo rect targetGraphics rect sourceGraphics
@@ -180,8 +180,8 @@ module GraphicsTests =
                        0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy;
                        0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
 
-        let sourceGraphics = Graphics(Page, Little, {Size.Width = 16; Height = 16}, buffer)
-        let targetGraphics = Graphics(Page, Little, {Size.Width = 8; Height = 8})
+        let sourceGraphics = Graphics.createFromBuffer Page Little {Size.Width = 16; Height = 16} buffer
+        let targetGraphics = Graphics.createFromSize Page Little {Size.Width = 8; Height = 8}
 
         let rect = {Point = {X = 0; Y = 0}; Size = {Width = 8; Height = 8}}
         copyTo rect targetGraphics rect sourceGraphics
@@ -195,8 +195,8 @@ module GraphicsTests =
                        0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy; 0x00uy;
                        0x01uy; 0x02uy; 0x04uy; 0x08uy; 0x10uy; 0x20uy; 0x40uy; 0x80uy|]
 
-        let sourceGraphics = Graphics(Page, Little, {Size.Width = 16; Height = 16}, buffer)
-        let targetGraphics = Graphics(Page, Little, {Size.Width = 8; Height = 8})
+        let sourceGraphics = Graphics.createFromBuffer Page Little {Size.Width = 16; Height = 16} buffer
+        let targetGraphics = Graphics.createFromSize Page Little {Size.Width = 8; Height = 8}
 
         let targetRect = {Point = {X = 0; Y = 0}; Size = {Width = 8; Height = 8}}
         let sourceRect = {Point = {X = 8; Y = 8}; Size = {Width = 8; Height = 8}}

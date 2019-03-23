@@ -78,7 +78,7 @@ module Layout =
         | DockPanel of (IAttribute list * LayoutElement list)
         | Border of (IBorderAttribute list * LayoutElement)
         | Text of (ITextAttribute list * string)
-        | Image of (IAttribute list * Graphics)
+        | Image of (IAttribute list * IGraphics)
         | Canvas of (IAttribute list * Visual list)
 
     type private Properties = {
@@ -363,7 +363,7 @@ module Layout =
         |> ignore
         
 
-    let rec private render (graphics:Graphics) (area:Rect) element =
+    let rec private render (graphics:IGraphics) (area:Rect) element =
         let getRenderRect (r:Rect) (desiredSize:Size) hAlignment vAlignment =
             let (x,w) = 
                 match hAlignment with
@@ -445,10 +445,8 @@ module Layout =
                 let childRect = shrink rect (bt + props.Padding)
                 render graphics childRect child
             | Canvas (_, children) ->
-                let g = Graphics(graphics.AddressingMode, graphics.Endianness, rect.Size)
+                let g = GraphicsWindow(graphics, rect)
                 children |> List.iter (renderVisualToGraphics g)
-                let sourceRect = Rect.fromSize graphics.Size
-                copyTo rect graphics sourceRect g
 
-    let renderToGraphics (graphics:Graphics) element =
+    let renderToGraphics (graphics:IGraphics) element =
         render graphics (graphics.Size |> Rect.fromSize) element
