@@ -128,14 +128,14 @@ module Layout =
         |> Seq.fold (fun m c -> let charSize = measureChar c in {Width = m.Width + charSize.Width; Height = Math.Max(m.Height, charSize.Height)}) Size.empty
         |> (fun m -> {m with Width = m.Width + if str.Length > 1 then (str.Length - 1) * FontClass.charSpacing else 0})
 
-    let private getLineLengthCore<'T> spacingWidth spacingChars measureLength maxLineWidth (getLength: 'T -> int) (items: 'T seq) =
+    let private getLineLengthCore<'T> spacingWidth spacingChars measureWidth maxLineWidth (getLength: 'T -> int) (items: 'T seq) =
         let acc (x, numberOfChars, resultLengths) i = 
-            let charLength = measureLength i
-            if (x + charLength > maxLineWidth) then 
+            let charWidth = measureWidth i
+            if (x + charWidth > maxLineWidth) then 
                 // Line break
-                (charLength, getLength i, numberOfChars :: resultLengths)
+                (charWidth + spacingWidth, getLength i, numberOfChars :: resultLengths)
             else 
-                (x + charLength + spacingWidth, numberOfChars + getLength i + (if x = 0 then 0 else spacingChars), resultLengths)
+                (x + charWidth + spacingWidth, numberOfChars + getLength i + (if x = 0 then 0 else spacingChars), resultLengths)
         items
         |> Seq.fold acc (0, 0, [])
         |> (fun (_, l, ls) -> if l > 0 then l :: ls else ls)

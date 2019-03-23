@@ -723,6 +723,33 @@ module RenderLayoutTests =
 └────────┘"""
 
     [<Test>]
+    let ``Render text wrap word second line test`` () =
+        let g = Graphics(ColumnMajor, Little, {Size.Width = 13; Height = 30})
+
+        text [TextWrapping Word] "12 3 4"
+        |> renderToGraphics g
+
+        let actual = g.ToString()
+        assertRender actual """
+┌─────────────┐
+│  ▄  ▄▄▄     │
+│▀▀█ █   █    │
+│  █    ▄▀    │
+│  █  ▄▀      │
+│  █ █        │
+│  ▀ ▀▀▀▀▀    │
+│             │
+│             │
+│ ▄▄▄         │
+│▀   █        │
+│  ▄▄▀        │
+│    █        │
+│▄   █        │
+│ ▀▀▀         │
+│             │
+└─────────────┘"""
+
+    [<Test>]
     let ``Dock panel image out of bounds`` () =
         let g = createGraphics()
 
