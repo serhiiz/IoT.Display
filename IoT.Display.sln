@@ -7,6 +7,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "IoT.Display", "IoT.Display\
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "IoT.Display.Tests", "IoT.Display.Tests\IoT.Display.Tests.fsproj", "{EB1C4E0A-A80F-4DDB-B20D-0F60468A3120}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "IoT.Display.Samples", "IoT.Display.Samples\IoT.Display.Samples.fsproj", "{AB25E96E-5ABD-4DA9-8807-06CB24C1F0DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EB1C4E0A-A80F-4DDB-B20D-0F60468A3120}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB1C4E0A-A80F-4DDB-B20D-0F60468A3120}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB1C4E0A-A80F-4DDB-B20D-0F60468A3120}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB25E96E-5ABD-4DA9-8807-06CB24C1F0DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB25E96E-5ABD-4DA9-8807-06CB24C1F0DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB25E96E-5ABD-4DA9-8807-06CB24C1F0DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB25E96E-5ABD-4DA9-8807-06CB24C1F0DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
