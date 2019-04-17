@@ -4,6 +4,10 @@ The library is supposed to be used in applications where UI is rendered every ti
 - [IoT.Display.RaspberrySharp](https://github.com/serhiiz/IoT.Display.RaspberrySharp) .Net/Mono adapter for Raspberry Pi and demo app (based on [RaspberrySharp](https://github.com/JTrotta/RaspberrySharp)).
 
 [![NuGet version (IoT.Display)](https://img.shields.io/nuget/v/IoT.Display.svg?style=flat-square)](https://www.nuget.org/packages/IoT.Display/)
+[![Build status](https://ci.appveyor.com/api/projects/status/8j9vfjnte3eod7vh/branch/master?svg=true)](https://ci.appveyor.com/project/serhiiz/iot-display/branch/master)
+[![Tests status](https://img.shields.io/appveyor/tests/serhiiz/iot-Display/master.svg)](https://ci.appveyor.com/project/serhiiz/iot-display/build/tests)
+
+
 
 ## Features:
 - Dock panel
